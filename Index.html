@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psikotes Posisi Tertentu- 16PF</title>
+    <title>Psikotes Kepribadian - 16PF</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -23,6 +23,13 @@
             color: white;
             border-color: #3b82f6; /* border-blue-500 */
         }
+        /* Custom modal styles */
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-container {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -32,7 +39,7 @@
         <!-- Halaman 1: Data Diri & Persetujuan -->
         <div id="welcomePage" class="p-8 md:p-12">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Psikotes 16PF</h1>
-            <p class="text-gray-600 mb-8">Untuk Posisi Tertentu</p>
+            <p class="text-gray-600 mb-8">Untuk Kandidat Posisi Tertentu</p>
             
             <form id="userDataForm">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -46,7 +53,7 @@
                     </div>
                     <div>
                         <label for="posisi" class="block text-sm font-medium text-gray-700 mb-2">Posisi yang Dilamar</label>
-                        <input type="text" id="posisi" name="posisi" value="" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                        <input type="text" id="posisi" name="posisi" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: Staff Gudang">
                     </div>
                     <div>
                         <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Tes</label>
@@ -126,9 +133,24 @@
 
     </div>
 
+    <!-- Modal Konfirmasi & Error -->
+    <div id="customModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div class="modal-container bg-white w-full max-w-md m-auto rounded-lg shadow-lg p-6 text-center transform scale-95">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4"></h3>
+            <p id="modalMessage" class="text-gray-600 mb-6"></p>
+            <div id="modalActions" class="flex justify-center gap-4">
+                <!-- Tombol akan ditambahkan oleh JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Iframe tersembunyi untuk menangani submit form tanpa reload halaman -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+
     <script>
-        // PENTING: Ganti URL ini dengan URL Web App dari Google Apps Script Anda
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsyL5hD94E5VbO7ydl2SaLuHsbJTNfVcMHwEsHJnmT13SBPEJr1K6pSxs37ZtWah0e/exec";
+        // URL SUDAH DIPERBARUI SECARA PERMANEN DENGAN LINK ANDA
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_rbO8exCh368E6LNa42M9nRrSHkEB5zBjrTvki_Ig97QloqBxUWOWHKdL63aM3xVI/exec";
 
         // --- DATA SOAL 16PF ---
         const questions = [
@@ -256,19 +278,47 @@
         const prevButton = document.getElementById('prevButton');
         const nextButton = document.getElementById('nextButton');
         const progressBar = document.getElementById('progressBar');
+
+        const modal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalActions = document.getElementById('modalActions');
         
         // --- Event Listeners ---
         userDataForm.addEventListener('submit', startTest);
         prevButton.addEventListener('click', showPreviousQuestion);
         nextButton.addEventListener('click', showNextQuestion);
 
-        // --- Fungsi-fungsi ---
+        // --- Fungsi Modal ---
+        function showModal(title, message, actions) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalActions.innerHTML = '';
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.textContent = action.text;
+                button.className = action.class;
+                button.onclick = () => {
+                    hideModal();
+                    if(action.callback) action.callback();
+                };
+                modalActions.appendChild(button);
+            });
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('.modal-container').classList.remove('scale-95');
+        }
+
+        function hideModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('.modal-container').classList.add('scale-95');
+        }
+
+        // --- Fungsi Utama ---
         function startTest(e) {
             e.preventDefault();
             const formData = new FormData(userDataForm);
             userData = Object.fromEntries(formData.entries());
             
-            // Set tanggal hari ini jika kosong
             const tglInput = document.getElementById('tanggal');
             if (!tglInput.value) {
                 tglInput.valueAsDate = new Date();
@@ -300,7 +350,6 @@
                 `;
             });
 
-            // Tambahkan event listener ke radio button yang baru dibuat
             document.querySelectorAll('input[name="answer"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     userAnswers[currentQuestionIndex] = e.target.value;
@@ -337,9 +386,10 @@
         }
 
         function showNextQuestion() {
-            // Cek apakah jawaban sudah dipilih
             if (userAnswers[currentQuestionIndex] === null) {
-                alert('Mohon pilih salah satu jawaban sebelum melanjutkan.');
+                showModal('Peringatan', 'Mohon pilih salah satu jawaban sebelum melanjutkan.', [
+                    { text: 'OK', class: 'bg-blue-600 text-white font-bold py-2 px-6 rounded-lg' }
+                ]);
                 return;
             }
 
@@ -347,50 +397,66 @@
                 currentQuestionIndex++;
                 renderQuestion();
             } else {
-                submitTest();
+                showModal('Konfirmasi', 'Apakah Anda yakin ingin mengirim jawaban Anda? Anda tidak dapat mengubahnya lagi setelah ini.', [
+                    { text: 'Batal', class: 'bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg' },
+                    { text: 'Kirim', class: 'bg-green-600 text-white font-bold py-2 px-6 rounded-lg', callback: submitAnswers }
+                ]);
             }
         }
 
-        function submitTest() {
-            // Konfirmasi terakhir
-            if (!confirm('Apakah Anda yakin ingin mengirim jawaban Anda? Anda tidak dapat mengubahnya lagi setelah ini.')) {
-                return;
-            }
-
+        function submitAnswers() {
             testPage.classList.add('hidden');
             loadingPage.classList.remove('hidden');
 
-            const finalData = {
-                ...userData,
-                answers: userAnswers
-            };
+            // --- PERBAIKAN FINAL DENGAN METODE FORM SUBMISSION ---
+            try {
+                // Buat form baru secara dinamis
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = SCRIPT_URL;
+                form.target = 'hidden_iframe'; // Targetkan ke iframe agar halaman tidak reload
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'cors',
-                cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(finalData),
-                redirect: 'follow'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.result === 'success') {
+                // Tambahkan data user sebagai input tersembunyi
+                for (const key in userData) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = userData[key];
+                    form.appendChild(input);
+                }
+
+                // Tambahkan data jawaban sebagai input tersembunyi
+                const answersInput = document.createElement('input');
+                answersInput.type = 'hidden';
+                answersInput.name = 'answers';
+                answersInput.value = JSON.stringify(userAnswers);
+                form.appendChild(answersInput);
+
+                // Tambahkan form ke body, kirim, lalu hapus
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+
+                // Karena kita tidak bisa mendapatkan respon dari metode ini,
+                // kita anggap pengiriman berhasil dan lanjutkan setelah jeda.
+                setTimeout(() => {
                     loadingPage.classList.add('hidden');
                     thankYouPage.classList.remove('hidden');
-                } else {
-                    throw new Error(data.message || 'Terjadi kesalahan saat mengirim data.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                }, 4000); // Jeda 4 detik untuk memberi waktu server memproses
+
+            } catch (error) {
+                 // Blok ini untuk menangkap error jika pembuatan form gagal (sangat jarang)
+                console.error('Error saat membuat form:', error);
                 loadingPage.classList.add('hidden');
-                alert(`Terjadi kesalahan: ${error.message}. Mohon coba lagi atau hubungi administrator.`);
-                // Kembalikan ke halaman tes jika gagal
-                testPage.classList.remove('hidden');
-            });
+                testPage.classList.remove('hidden'); 
+                showModal(
+                    'Error Klien', 
+                    `Terjadi masalah pada browser Anda: ${error.message}. Mohon muat ulang halaman dan coba lagi.`, 
+                    [
+                        { text: 'OK', class: 'bg-red-600 text-white font-bold py-2 px-6 rounded-lg' }
+                    ]
+                );
+            }
         }
         
         // Inisialisasi tanggal
