@@ -3,465 +3,883 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psikotes Kepribadian - 16PF</title>
+    <title>Psikotes Online - 16 Personality Factor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF and the AutoTable plugin for text-based PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Menyembunyikan radio button asli */
-        input[type="radio"] {
+        .page {
             display: none;
         }
-        /* Styling untuk label sebagai tombol radio kustom */
-        input[type="radio"] + label {
+        .page.active {
+            display: block;
+        }
+        /* Custom radio button styles */
+        .custom-radio input[type="radio"] {
+            display: none;
+        }
+        .custom-radio label {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #D1D5DB;
             transition: all 0.2s ease-in-out;
+            width: 100%;
+            text-align: center;
         }
-        input[type="radio"]:checked + label {
-            background-color: #3b82f6; /* bg-blue-500 */
+        .custom-radio input[type="radio"]:checked + label {
+            background-color: #3B82F6;
             color: white;
-            border-color: #3b82f6; /* border-blue-500 */
+            border-color: #3B82F6;
         }
-        /* Custom modal styles */
+        /* Custom Modal Styles */
         .modal-overlay {
-            transition: opacity 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .modal-container {
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.95);
             transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 text-gray-800">
 
-    <div class="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-lg transition-all duration-500">
-
-        <!-- Halaman 1: Data Diri & Persetujuan -->
-        <div id="welcomePage" class="p-8 md:p-12">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Psikotes 16PF</h1>
-            <p class="text-gray-600 mb-8">Untuk Kandidat Posisi Tertentu</p>
+    <div class="container mx-auto p-4 sm:p-8 max-w-4xl">
+        <!-- Halaman Depan: Data Diri & Persetujuan -->
+        <div id="welcomePage" class="page active bg-white p-8 rounded-xl shadow-lg">
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">Psikotes Online</h1>
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">16 Personality Factor (16 PF) Test</h2>
+            <p class="text-gray-600 mb-6 text-center">Selamat datang. Silakan isi data diri Anda di bawah ini untuk memulai tes. Tes ini terdiri dari 105 pertanyaan dan tidak ada batasan waktu, namun kami sarankan untuk mengerjakannya dalam satu sesi.</p>
             
-            <form id="userDataForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                        <input type="text" id="nama" name="nama" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Alamat Email</label>
-                        <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="posisi" class="block text-sm font-medium text-gray-700 mb-2">Posisi yang Dilamar</label>
-                        <input type="text" id="posisi" name="posisi" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: Staff Gudang">
-                    </div>
-                    <div>
-                        <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Tes</label>
-                        <input type="date" id="tanggal" name="tanggal" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                    </div>
+            <form id="candidateForm" class="space-y-6">
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input type="text" id="fullName" name="fullName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
                 </div>
-
-                <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                    <h3 class="font-semibold text-gray-800 mb-2">Persetujuan Kandidat</h3>
-                    <p class="text-sm text-gray-600 mb-4">
-                        Dengan ini saya menyatakan bahwa data yang saya isikan adalah benar dan saya bersedia mengikuti tes ini dengan sungguh-sungguh. Saya juga memberikan persetujuan kepada pihak perusahaan untuk menyimpan dan menggunakan hasil tes ini untuk keperluan proses seleksi. Saya memahami bahwa hasil tes ini bersifat rahasia dan tidak akan disebarluaskan untuk tujuan lain.
-                    </p>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="consent" name="consent" required class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="consent" class="ml-2 block text-sm text-gray-900">Saya membaca dan menyetujui.</label>
-                    </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label for="position" class="block text-sm font-medium text-gray-700">Posisi yang Dilamar</label>
+                    <input type="text" id="position" name="position" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
                 </div>
                 
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">
-                    Mulai Tes
-                </button>
+                <div class="mt-6">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="consent" name="consent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" required>
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="consent" class="font-medium text-gray-700">Persetujuan</label>
+                            <p class="text-gray-500">Saya mengerti dan setuju bahwa data dan hasil tes ini akan disimpan dan digunakan untuk keperluan proses seleksi. Saya juga setuju bahwa data ini akan dijaga kerahasiaannya dan tidak akan disebarluaskan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105">
+                        Mulai Tes
+                    </button>
+                </div>
             </form>
         </div>
 
-        <!-- Halaman 2: Pengerjaan Tes -->
-        <div id="testPage" class="p-8 md:p-12 hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Soal Tes Kepribadian</h2>
-                <div class="text-lg font-semibold text-gray-700 bg-gray-100 px-4 py-2 rounded-lg">
-                    <span id="questionNumber">1</span> / 105
+        <!-- Halaman Tes -->
+        <div id="testPage" class="page">
+             <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">Soal Tes 16 PF</h1>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
                 </div>
-            </div>
-
-            <div class="bg-gray-50 p-6 rounded-lg mb-8 min-h-[120px] flex items-center">
-                <p id="questionText" class="text-lg text-gray-800 leading-relaxed"></p>
-            </div>
-
-            <div id="optionsContainer" class="space-y-4 mb-8">
-                <!-- Opsi jawaban akan dimasukkan oleh JavaScript -->
-            </div>
-
-            <div class="flex justify-between items-center">
-                <button id="prevButton" class="bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Kembali
+                <div id="questionsContainer" class="space-y-8">
+                    <!-- Pertanyaan akan dimuat di sini oleh JavaScript -->
+                </div>
+                <button id="finishTestBtn" class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105">
+                    Selesai
                 </button>
-                <button id="nextButton" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">
-                    Lanjut
-                </button>
-            </div>
-             <div class="mt-4 h-2 w-full bg-gray-200 rounded-full">
-                <div id="progressBar" class="h-2 bg-blue-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
             </div>
         </div>
-        
-        <!-- Halaman 3: Loading -->
-        <div id="loadingPage" class="p-8 md:p-12 text-center hidden">
-            <div class="flex justify-center items-center mb-4">
-                 <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+        <!-- Halaman Loading -->
+        <div id="loadingPage" class="page">
+            <div class="fixed inset-0 bg-white bg-opacity-95 flex flex-col items-center justify-center z-50">
+                <svg class="animate-spin h-16 w-16 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-800">Memproses Hasil Anda...</h2>
-            <p class="text-gray-600 mt-2">Mohon tunggu sebentar. Sistem sedang menganalisis jawaban Anda dan membuat laporan PDF.</p>
-        </div>
-
-        <!-- Halaman 4: Selesai -->
-        <div id="thankYouPage" class="p-8 md:p-12 text-center hidden">
-            <div class="flex justify-center items-center mb-6">
-                <svg class="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
+                <h2 class="text-xl font-semibold text-gray-700">Sedang memproses hasil...</h2>
+                <p class="text-gray-600">Mohon tunggu sebentar, hasil tes Anda sedang dikirim.</p>
             </div>
-            <h2 class="text-3xl font-bold text-gray-800">Tes Selesai!</h2>
-            <p class="text-gray-600 mt-3 text-lg">Terima kasih telah menyelesaikan tes kepribadian ini. Jawaban Anda telah berhasil kami rekam. Tim HR akan segera meninjau hasil Anda.</p>
         </div>
 
-    </div>
-
-    <!-- Modal Konfirmasi & Error -->
-    <div id="customModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
-        <div class="modal-container bg-white w-full max-w-md m-auto rounded-lg shadow-lg p-6 text-center transform scale-95">
-            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4"></h3>
-            <p id="modalMessage" class="text-gray-600 mb-6"></p>
-            <div id="modalActions" class="flex justify-center gap-4">
-                <!-- Tombol akan ditambahkan oleh JavaScript -->
+        <!-- Halaman Terima Kasih -->
+        <div id="resultPage" class="page">
+            <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                <h1 class="text-3xl font-bold text-green-600 mb-4">Terima Kasih!</h1>
+                <p class="text-gray-700 text-lg mb-2">Anda telah berhasil menyelesaikan tes psikologi ini.</p>
+                <p class="text-gray-600">Hasil tes Anda telah kami terima dan akan segera diproses oleh tim HR kami. Kami akan menghubungi Anda kembali untuk tahap selanjutnya.</p>
+                <svg class="mx-auto mt-8 w-24 h-24 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
         </div>
     </div>
-    
-    <!-- Iframe tersembunyi untuk menangani submit form tanpa reload halaman -->
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
+    <!-- Custom Modal for Alerts and Confirms -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content shadow-xl">
+            <p id="modalMessage" class="text-lg text-gray-700 mb-6"></p>
+            <div id="modalActions" class="flex justify-center space-x-4">
+                <button id="modalConfirmBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">Ya</button>
+                <button id="modalCancelBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg">Batal</button>
+                <button id="modalOkBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">OK</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // URL SUDAH DIPERBARUI SECARA PERMANEN DENGAN LINK ANDA
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_rbO8exCh368E6LNa42M9nRrSHkEB5zBjrTvki_Ig97QloqBxUWOWHKdL63aM3xVI/exec";
+    // URL Google Apps Script Anda akan ditaruh di sini
+    const googleScriptURL = 'https://script.google.com/macros/s/AKfycbyJkCIYQsiTReKKPUe6EXZJHrtdcQfvXsCiQjTAt6wZne35GEpPgcpHuR8KWgpzmoVqrQ/exec';
+    
+    // Data Pengujian
+    const candidateData = {};
+    const questions = [
+        { "no": 1, "q": "Saya terbiasa bangun lambat waktu pagi", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 2, "q": "Saya lebih suka olahraga dan atletik:", "a": "Daripada kegiatan intelektual", "b": "Diantaranya", "c": "Daripada membaca dan kegiatan tenang lainnya" },
+        { "no": 3, "q": "Saya dapat menemukan alasan yang masuk akal untuk perasaan saya hampir setiap saat.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 4, "q": "Saya merasa sedikit gugup bila berhadapan dengan orang-orang asing.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 5, "q": "Bila saya harus memilih, maka saya memilih menjadi:", "a": "Seorang pengawas kehutanan", "b": "Diantaranya", "c": "Seorang guru SMA" },
+        { "no": 6, "q": "Saya lebih senang meminjam:", "a": "Buku-buku yang lucu dari perpustakaan", "b": "Diantaranya", "c": "Buku-buku tentang perjuangan pahlawan-pahlawan suatu bangsa" },
+        { "no": 7, "q": "Saya suka bercanda dan menceritakan cerita-cerita lucu setiap ada kesempatan.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 8, "q": "Saya senang diperhatikan oleh orang banyak.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 9, "q": "Saya lebih senang berolahraga yang memerlukan kerjasama dalam satu tim.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 10, "q": "Saya lebih senang jika teman-teman saya:", "a": "Terkenal karena kecerdasan berpikirnya", "b": "Diantaranya", "c": "Praktis dalam menyelesaikan segala urusan" },
+        { "no": 11, "q": "Saya seringkali mempunyai ide-ide yang mendadak, yang timbul dari pikiran saya sendiri.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 12, "q": "Saya pikir kebanyakan saksi di pengadilan mengatakan yang sebenarnya meskipun hal itu memalukan.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 13, "q": "Saya lebih senang berada di antara orang-orang yang santai dan tidak resmi.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 14, "q": "Saya sering menginginkan agar orang bersikap lebih konsekuen.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 15, "q": "Kadang-kadang saya merasa bahwa saya tidak melakukan suatu apapun dengan benar.", "a": "Sering", "b": "Kadang-kadang", "c": "Jarang sekali" },
+        { "no": 16, "q": "Saya tidak suka bila orang-orang terlalu lama memandang saya di jalan atau di toko-toko.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 17, "q": "Bila saya membuat rencana, biasanya saya melaksanakannya sungguh-sungguh.", "a": "Hampir selalu", "b": "Kadang-kadang", "c": "Jarang sekali" },
+        { "no": 18, "q": "Saya akan lebih senang bila orang-orang menganggap saya:", "a": "Seorang yang suka bekerja sama dalam suatu panitia", "b": "Diantaranya", "c": "Seorang yang banyak akal dan imajinatif" },
+        { "no": 19, "q": "Saya merasa bahwa ide-ide baru yang orisinal lebih penting daripada suatu hasil yang praktis.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 20, "q": "Saya dapat melupakan kekuatiran-kekuatiran dan tanggung jawab-tanggung jawab saya bila saya ingin.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 21, "q": "Saya mengalami kesulitan untuk mengakui bahwa saya salah.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 22, "q": "Dalam tugas kelompok, saya lebih suka:", "a": "Mencoba untuk memperbaiki pelaksanaannya", "b": "Diantaranya", "c": "Membuat catatan-catatan dan melihat apakah peraturan-peraturannya ditaati" },
+        { "no": 23, "q": "Bila saya marah, saya biasanya cepat tenang kembali.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 24, "q": "Saya lebih suka mempunyai kantor sendiri yang tidak diganggu oleh siapapun, daripada berbagi dengan orang lain.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 25, "q": "Kata yang manakah yang tidak tergolong dua kata lainnya?", "a": "Anjing", "b": "Batu", "c": "Sapi" },
+        { "no": 26, "q": "Api itu panas, maka es itu:", "a": "Dingin", "b": "Beku", "c": "Basah" },
+        { "no": 27, "q": "Saya selalu dapat menahan diri untuk tidak memperlihatkan perasaan saya di depan umum, tidak peduli betapa terganggunya perasaan saya.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 28, "q": "Saya seringkali berada dalam keadaan tegang, gelisah, bila memikirkan peristiwa-peristiwa sepanjang hari.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 29, "q": "Orang-orang mengatakan bahwa saya adalah seorang yang suka bermain-main.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 30, "q": "Saya lebih suka mempunyai teman-teman yang:", "a": "Minatnya mendalam dan artistik", "b": "Diantaranya", "c": "Efisien, praktis, dan cepat mengambil keputusan" },
+        { "no": 31, "q": "Bila saya melihat orang-orang yang tidak rapi dan jorok, saya:", "a": "Menerimanya saja", "b": "Diantaranya", "c": "Merasa jijik dan terganggu" },
+        { "no": 32, "q": "Saya merasa sangat terganggu bila menyadari bahwa saya telah menyakiti perasaan seseorang.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 33, "q": "Bila dihadapkan pada suatu tugas yang sukar dan memerlukan kegiatan, saya akan:", "a": "Mencobanya", "b": "Diantaranya", "c": "Menyerahkannya pada orang lain" },
+        { "no": 34, "q": "Saya sering mempunyai mimpi-mimpi yang menegangkan.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 35, "q": "Orang-orang seharusnya lebih banyak mengikuti peraturan-peraturan moral.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 36, "q": "Saya lebih senang bekerja dengan orang-orang pandai daripada orang-orang praktis.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 37, "q": "Saya jarang sekali membiarkan diri saya terlarut dalam kegembiraan dan senda gurau.", "a": "Benar", "b": "Diantaranya", "c": "Tidak benar" },
+        { "no": 38, "q": "Bila saya menemui rintangan, saya biasanya bertahan dan tidak menyerah.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 39, "q": "Saya merasa malu bila tiba-tiba menjadi pusat perhatian dalam suatu kelompok.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 40, "q": "Mana yang tidak termasuk dalam kelompok yang sama?", "a": "Anjing", "b": "Kucing", "c": "Kuda" },
+        { "no": 41, "q": "Bila saya berada dalam suatu kelompok, biasanya saya diam saja.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 42, "q": "Saya senang mengambil bagian secara aktif dalam kegiatan-kegiatan sosial.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 43, "q": "Mencapai sukses adalah soal kerja keras, bukan soal kemujuran.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 44, "q": "Saya cenderung untuk diam saja bila berada di antara orang-orang yang belum saya kenal baik.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 45, "q": "Saya lebih senang menjadi:", "a": "Seorang seniman", "b": "Diantaranya", "c": "Seorang pengrajin" },
+        { "no": 46, "q": "Menurut pendapat saya, dunia lebih memerlukan:", "a": "Persenjataan", "b": "Di antaranya", "c": "Pendidikan" },
+        { "no": 47, "q": "Saya cenderung melewatkan waktu malam dengan:", "a": "Bermain suatu permainan kartu yang sukar", "b": "Di antaranya", "c": "Melihat album foto masa libur yang lalu" },
+        { "no": 48, "q": "Saya lebih senang membaca:", "a": "Cerita-cerita sejarah yang baik", "b": "Di antaranya", "c": "Karangan ilmiah tentang penggunaan sumber-sumber alam" },
+        { "no": 49, "q": "Di dunia sebenarnya terdapat lebih banyak orang-orang yang tidak disenangi.", "a": "Ya", "b": "Di antaranya", "c": "Tidak" },
+        { "no": 50, "q": "Secara jujur saya merasa bahwa saya mempunyai ambisi lebih besar, tenaga lebih banyak dan lebih berencana, daripada orang-orang lain yang sama-sama berhasil.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 51, "q": "Ada waktu-waktu tertentu di mana saya segan bertemu dengan orang lain.", "a": "Sangat jarang", "b": "Di antaranya", "c": "Sering sekali" },
+        { "no": 52, "q": "Bila saya yakin bahwa saya melakukan yang benar, maka tugas saya akan dirasakan mudah.", "a": "Ya (sering)", "b": "Kadang-kadang", "c": "Tidak (jarang)" },
+        { "no": 53, "q": "Saya lebih senang:", "a": "Berada dalam kantor dagang, mengorganisir, dan bertemu dengan orang-orang", "b": "Di antaranya", "c": "Menjadi seorang arsitek, merencanakan gambar di belakang meja" },
+        { "no": 54, "q": "Bila hitam itu kelabu, maka nyeri itu:", "a": "Luka", "b": "Penyakit", "c": "Tidak menyenangkan" },
+        { "no": 55, "q": "Saya selalu tidur nyenyak, dan tidak pernah 'berjalan' atau 'berbicara sewaktu tidur'", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 56, "q": "Hal-hal berjalan dengan baik bagi saya hanya setelah melalui perjuangan yang berat.", "a": "Sering", "b": "Kadang-kadang", "c": "Jarang sekali" },
+        { "no": 57, "q": "Saya sering merasa segan untuk memulai suatu percakapan dengan orang asing.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 58, "q": "Bila saya harus memilih, saya akan memilih menjadi:", "a": "Seorang ahli ilmu jiwa", "b": "Diantaranya", "c": "Seorang manajer penjualan" },
+        { "no": 59, "q": "Saya biasanya menjadi pusat perhatian dalam suatu kelompok.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 60, "q": "Bila orang-orang tidak mau mendengarkan saran-saran saya, maka saya tidak akan memaksakannya.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 61, "q": "Saya lebih senang menjadi:", "a": "Seorang artis", "b": "Diantaranya", "c": "Seorang sekretaris" },
+        { "no": 62, "q": "Saya senang membuat orang lain tertawa.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 63, "q": "Saya mengagumi:", "a": "Orang-orang yang pandai dan cerdik", "b": "Diantaranya", "c": "Orang-orang yang bijaksana dan hati-hati" },
+        { "no": 64, "q": "Saya lebih senang memikirkan cara-cara baru untuk melakukan suatu hal, daripada mengikuti cara-cara yang sudah ada.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 65, "q": "Saya menikmati percakapan dengan orang-orang yang aneh dan tidak biasa.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 66, "q": "Saya merasa bahwa ide-ide saya tidak lebih baik daripada ide-ide orang lain.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 67, "q": "Orang-orang seringkali membicarakan saya di belakang.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 68, "q": "Saya lebih suka mempunyai rumah:", "a": "Di tengah-tengah keramaian sosial", "b": "Diantaranya", "c": "Di tempat yang sunyi dan terpencil" },
+        { "no": 69, "q": "Saya seorang yang teliti dan selalu memikirkan segala sesuatunya dengan masak.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 70, "q": "Saya suka merencanakan sesuatu jauh-jauh sebelumnya.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 71, "q": "Saya jarang merasa sedih atau murung.", "a": "Benar", "b": "Diantaranya", "c": "Tidak benar" },
+        { "no": 72, "q": "Saya dapat bekerja dengan baik tanpa menghiraukan orang-orang yang mengganggu saya.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 73, "q": "Saya sering mempunyai saat-saat di mana saya merasa gembira dan bersemangat tanpa suatu alasan yang khusus.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 74, "q": "Saya senang bila berada di tengah-tengah keramaian, misalnya dalam suatu pesta atau pertemuan.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 75, "q": "Kata yang manakah yang tidak tergolong dua kata lainnya?", "a": "Memikirkan", "b": "Melihat", "c": "Mendengar" },
+        { "no": 76, "q": "Bulan itu bumi, maka matahari itu:", "a": "Langit", "b": "Bintang", "c": "Alam semesta" },
+        { "no": 77, "q": "Saya cenderung untuk menyalahkan diri saya sendiri bila sesuatu berjalan salah.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 78, "q": "Bila menghadapi suatu masalah, saya lebih senang:", "a": "Mendiskusikannya dengan teman-teman", "b": "Diantaranya", "c": "Memikirkannya sendiri" },
+        { "no": 79, "q": "Saya lebih tertarik pada:", "a": "Orang-orang", "b": "Diantaranya", "c": "Prinsip-prinsip atau ide-ide" },
+        { "no": 80, "q": "Saya lebih suka mengambil risiko daripada berhati-hati.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 81, "q": "Saya dapat menyesuaikan diri dengan baik dalam setiap keadaan.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 82, "q": "Saya lebih suka:", "a": "Mencari pengalaman baru", "b": "Diantaranya", "c": "Tetap pada hal-hal yang sudah biasa" },
+        { "no": 83, "q": "Dalam pergaulan, saya:", "a": "Mudah menunjukkan perasaan saya", "b": "Diantaranya", "c": "Menyimpan perasaan saya untuk diri saya sendiri" },
+        { "no": 84, "q": "Saya merasa bahwa imajinasi saya tidak begitu aktif.", "a": "Benar", "b": "Diantaranya", "c": "Tidak benar" },
+        { "no": 85, "q": "Menurut pendapat saya, kebebasan pribadi lebih penting daripada tata tertib yang baik.", "a": "Benar", "b": "Diantaranya", "c": "Tidak benar" },
+        { "no": 86, "q": "Saya mudah merasa cemburu.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 87, "q": "Saya suka mengambil bagian dalam diskusi-diskusi kelompok.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 88, "q": "Saya bekerja lebih baik bila:", "a": "Dipuji", "b": "Diantaranya", "c": "Diberi kritik" },
+        { "no": 89, "q": "Dalam suatu perjalanan, saya lebih suka:", "a": "Melihat-lihat pemandangan", "b": "Diantaranya", "c": "Bercakap-cakap dengan teman seperjalanan" },
+        { "no": 90, "q": "Orang-orang menganggap saya sebagai seorang yang dingin dan suka menyendiri.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 91, "q": "Saya dapat menipu orang lain dengan bersikap ramah, padahal sebenarnya saya tidak menyukai mereka.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 92, "q": "Saya seringkali sulit tidur karena pikiran-pikiran yang mengganggu.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 93, "q": "Saya seorang yang praktis dan tidak suka melamun.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 94, "q": "Saya selalu bersikap tenang, tidak pernah merasa gelisah.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 95, "q": "Saya seorang yang suka berteman dan mudah bergaul.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 96, "q": "Saya lebih suka mengikuti petunjuk-petunjuk yang jelas daripada bekerja menurut cara saya sendiri.", "a": "Benar", "b": "Diantaranya", "c": "Tidak benar" },
+        { "no": 97, "q": "Saya merasa bahwa saya seorang yang bertanggung jawab dan dapat diandalkan.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 98, "q": "Saya mudah marah, tetapi juga mudah memaafkan.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 99, "q": "Saya lebih suka hidup di kota daripada di desa.", "a": "Ya", "b": "Diantaranya", "c": "Tidak" },
+        { "no": 100, "q": "Agar saya dapat menentukan sikap yang baik terhadap suatu masalah/issue sosial, maka sebelumnya saya:", "a": "Membaca buku tentang/yang berhubungan dengan masalah tersebut", "b": "Di antaranya", "c": "Mempelajari data statistik dan fakta-fakta lainnya yang sehubungan dengan masalah tersebut" },
+        { "no": 101, "q": "Saya suka mimpi tentang hal-hal yang fantastis dan aneh-aneh.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 102, "q": "Ditinggalkan dalam rumah kosong sendirian, saya cenderung merasa takut dan cemas.", "a": "Ya", "b": "Kadang-kadang", "c": "Tidak" },
+        { "no": 103, "q": "Bila saya tidak menyukai orang-orang, maka saya bisa berpura-pura saya menyukai mereka.", "a": "Ya", "b": "Kadamg-kadang", "c": "Tidak" },
+        { "no": 104, "q": "Kata yang manakah yang tidak tergolong dua kata lainnya?", "a": "Keras", "b": "Tajam", "c": "Lunak" },
+        { "no": 105, "q": "Ayam itu telur, maka tanaman itu:", "a": "Daun", "b": "Biji", "c": "Akar" }
+    ];
 
-        // --- DATA SOAL 16PF ---
-        const questions = [
-            { q: "Saya merasa ingatan saya jauh lebih daripada sebelumnya.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Dengan hidup menyendiri, seperti seorang pertapa, saya merasa bahagia.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila dikatakan langit itu \"dibawah\" dan salju itu \"panas\", maka kriminal itu:", o: ["Penjahat", "Malaikat", "Awan"] },
-            { q: "Terhadap orang yang \"jorok\" dan \"sembarangan\", saya:", o: ["Bisa memakluminya", "Di antaranya", "Merasa jijik dan tak menyenangkan"] },
-            { q: "Saya jengkel terhadap orang-orang yang merasa dirinya bisa melakukan sesuatu lebih baik dari orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Dalam pesta, saya membiarkan orang-orang lain yang membuat humor dan bercerita.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila penghasilan saya melebihi dari yang saya butuhkan sehari-hari, maka saya akan menyumbangkan kelebihan uang tersebut pada organisasi/yayasan social.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Kebanyakan orang yang saya jumpai di pesta, merasa senang bertemu saya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya:", o: ["Lebih suka berlatih anggar dan menari/dansa", "Di antaranya", "Lebih suka berlatih gulat dan bola basket"] },
-            { q: "Saya tersenyum pada diri sendiri bila melihat orang yang menampilkan ketidak-sesuaian antara perbuatan dan ucapannya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Ketika saya kecil, saya merasa sedih bila meninggalkan rumah untuk ke sekolah setiap hari.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila pendapat baik saya diabaikan orang, maka saya akan:", o: ["Mengemukakannya cukup sekali saja", "Di antaranya", "Mengemukakan sekali lagi supaya bisa didengar orang lain"] },
-            { q: "Terhadap orang yang berkelakuan buruk, saya:", o: ["Tidak mencampurinya, karena bukan urusan saya", "Di antaranya", "Memberitahukan, bahwa banyak orang yang tidak menyukainya"] },
-            { q: "Bila saya mempunyai seorang teman baru, saya akan:", o: ["Senang membicarakan pandangannya terhadap politik dan masalah sosial", "Di antaranya", "Memintanya untuk menceritakan hal yang lucu-lucu yang belum pernah saya ketahui sebelumnya"] },
-            { q: "Bila saya merencanakan sesuatu, maka saya lebih senang mengerjakannya sendiri, tanpa bantuan orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya tidak senang merenungkan kemungkinan-kemungkinan yang bisa terjadi pada masa lampau karena itu hanya membuang waktu saja.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila saya akan naik kereta api, saya cenderung untuk tergesa-gesa dan kuatir terlambat, meskipun tahu bahwa saya punya cukup waktu.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Terkadang, walaupun sebentar, timbul perasaan benci terhadap orang tua saya.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya bisa senang dengan pekerjaan di mana saya seharian harus mendengarkan keluhan-keluhan yang tidak menyenangkan baik dari para langganan ataupun dari karyawan sendiri.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Kebalikan dari kebalikan dari \"tidak tepat\" adalah:", o: ["Kebetulan", "Tepat", "Kira-kira"] },
-            { q: "Sewaktu-waktu dibutuhkan, saya senantiasa punya banyak tenaga.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya merasa sangat malu bila harus bercerita pada orang-orang bahwa saya pernah tinggal di Perkampungan Nudist (perkampungan orang telanjang).", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya senang berkumpul dengan orang banyak, seperti menghadiri pertemuan-pertemuan atau pesta-pesta.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya berpendapat bahwa:", o: ["Ada beberapa pekerjaan yang tidak perlu dikerjakan dengan sangat hati-hati seperti pekerjaan lain", "Di antaranya", "Setiap pekerjaan harus dikerjakan seluruhnya, bila memang mau dikerjakan"] },
-            { q: "Baik di jalan, maupun di toko, saya tidak senang dengan cara orang-orang memperhatikan orang lain.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya lebih senang menjadi:", o: ["Pendeta/Alim Ulama", "Di antaranya", "Kolonel"] },
-            { q: "Bila seorang tetangga menipu saya secara kecil-kecilan, saya lebih cenderung untuk memperoloknya daripada membuat perkara.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya lebih senang menonton film:", o: ["Tentang masa perjuangan", "Di antaranya", "Tentang \"ramalan humoristis\" dari kehidupan masyarakat dimasa mendatang"] },
-            { q: "Bila dalam suatu tugas saya diberi wewenang, maka instruksi-instruksi saya haruslah dilaksanakan, bila tidak, maka saya akan mengundurkan diri dari tugas tersebut.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Menurut pendapat saya adalah bijaksana untuk menghindari perasaan gembira yang berlebihan, karena bisa meletihkan saya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Seandainya saya cukup \"ahli\" dalam kedua permainan tersebut dibawah ini, namun saya lebih senang dengan:", o: ["Catur", "Di antaranya", "Bowling"] },
-            { q: "Saya rasa adalah kejam untuk menyuntik anak-anak yang masih kecil, walaupun itu demi kesehatan, dan para orang tua berhak menolak anjuran suntik terhadap anak-anak mereka.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya lebih percaya pada:", o: ["Asuransi", "Di antaranya", "Nasib baik"] },
-            { q: "Bila perlu saya bisa melupakan kekhawatiran dan tanggung jawab.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Adalah tidak mudah bagi saya untuk mengikuti suatu kesalahan.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Dalam perusahaan saya lebih senang bekerja di:", o: ["Bidang teknik/mesin-mesin atau pencatatan data", "Di antaranya", "Seleksi calon/pelamar, melakukan wawancara"] },
-            { q: "Pilihlah kata yang tidak termasuk (berbeda) dengan kedua kata lainnya:", o: ["Kucing", "Dekat", "Matahari"] },
-            { q: "Kesehatan saya mudah terpengaruh oleh perubahan mendadak, sehingga saya harus mengubah kembali rencana semula.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya merasa senang bila pada waktu-waktu tertentu saya dilayani oleh pembantu-pembantu pribadi.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila saya sedang bersama dengan orang banyak, maka saya merasa agak kaku dan tidak bisa menonjolkan diri seperti seharusnya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Menurut pendapat saya, orang-orang harus lebih mentaati hukum-hukum moral.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Beberapa hal membuat saya sangat marah, sehingga saya anggap lebih baik untuk \"tidak berbicara\".", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya bisa melakukan pekerjaan \"kasar\" tanpa merasa cepat lelah seperti orang-orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Menurut pendapat saya, kebanyakan saksi akan berkata yang sebenarnya walaupun itu akan memalukannya.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Bila saya sedang berpikir, maka lebih baik bagi saya bila saya berjalan hilir mudik.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Menurut pendapat saya sebaiknya Negara kita mengutamakan:", o: ["Persenjataan", "Di antaranya", "Pendidikan"] },
-            { q: "Saya cenderung melewatkan waktu malam dengan:", o: ["Bermain suatu permainan kartu yang sukar", "Di antaranya", "Melihat album foto masa libur yang lalu"] },
-            { q: "Saya lebih senang membaca:", o: ["Cerita-cerita sejarah yang baik", "Di antaranya", "Karangan ilmiah tentang penggunaan sumber-sumber alam"] },
-            { q: "Di dunia sebenarnya terdapat lebih banyak orang-orang yang tidak disenangi.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Secara jujur saya merasa bahwa saya mempunyai ambisi lebih besar, tenaga lebih banyak dan lebih berencana, daripada orang-orang lain yang sama-sama berhasil.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Ada waktu-waktu tertentu di mana saya segan bertemu dengan orang lain.", o: ["Sangat jarang", "Di antaranya", "Sering sekali"] },
-            { q: "Bila saya yakin bahwa saya melakukan yang benar, maka tugas saya akan dirasakan mudah.", o: ["Ya (sering)", "Kadang-kadang", "Tidak (jarang)"] },
-            { q: "Saya lebih senang:", o: ["Berada dalam kantor dagang, mengorganisir, dan bertemu dengan orang-orang", "Di antaranya", "Menjadi seorang arsitek, merencanakan gambar di belakang meja"] },
-            { q: "Bila hitam itu kelabu, maka nyeri itu:", o: ["Luka", "Penyakit", "Tidak menyenangkan"] },
-            { q: "Saya selalu tidur nyenyak, dan tidak pernah \"berjalan\" atau \"berbicara sewaktu tidur\"", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya bisa berbohong pada seseorang dengan menatap wajahnya tanpa berkedip (bila untuk tujuan yang benar).", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya pernah aktif dalam mengorganisir perkumpulan sosial/kegiatan kelompok", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya lebih kagum pada:", o: ["Orang cerdas walaupun kurang dapat dipercaya", "Di antaranya", "Orang yang biasa-biasa saja namun kuat menahan godaan"] },
-            { q: "Bila tuduhan yang saya lontarkan itu benar, maka saya akan berbuat sedemikian rupa sehingga akhirnya keinginan-keinginan saya terpenuhi.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Halangan-halangan yang saya hadapi, bisa membuat saya hamper menangis.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Menurut pendapat saya, banyak Negara-negara lain sebenarnya lebih menunjukkan sikap bersahabat daripada yang kita duga semula.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Setiap hari, ada saat-saat tertentu dimana saya ingin menyelami pemikiran-pemikiran saya tanpa diganggu oleh orang lain.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya sering kesal terhadap peraturan-peraturan kecil, walaupun saya menyadari pentingnya peraturan tersebut.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya berpendapat bahwa sistem pendidikan modern sekarang, tidaklah sebaik sistem pendidikan yang lama, yaitu: \"Bertindaklah keras terhadap anak!\"", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya belajar lebih banyak pada waktu sekolah, dengan:", o: ["Rajin masuk sekolah", "Di antaranya", "Membaca buku-buku"] },
-            { q: "Saya berusaha untuk tidak melibatkan diri dalam kegiatan social dengan berbagai tanggung jawabnya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila saya menghadapi sesuatu masalah yang sulit, sedangkan masih banyak tugas lain yang harus dikerjakan, maka saya mencoba:", o: ["Menghadapi masalah lainnya dulu", "Di antaranya", "Cara lain untuk mengatasi masalah tersebut"] },
-            { q: "Saya mengalami keadaan yang kuat (seperti rasa takut, marah, gembira) tanpa ada suatu sebab yang berarti :", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Pada saat-saat tertentu saya tak dapat berpikir dengan jernih", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya senang mewajibkan atau menyuruh orang lain membuat janji pada waktu seperti yang mereka inginkan, walaupun hal tersebut agak kurang menyenangkan bagi saya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Kelanjutan dari deret angka: 1, 2, 3, 5, 6, ... adalah", o: ["10", "5", "7"] },
-            { q: "Saya cenderung bersikap kritis terhadap pekerjaan orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Lebih baik keinginan tertentu saya dibatalkan, daripada akan merepotkan pembantu jika dilaksanakannya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya senang bepergian kapan saja.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya pernah hampir pingsan ketika mengalami suatu rasa sakit yang sangat, atau bila melihat darah.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya senang membicarakan masalah-masalah setempat dengan orang-orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya lebih senang menjadi:", o: ["Seorang sarjana teknik berguna", "Di antaranya", "Seorang guru pelajaran social dan budi pekerti"] },
-            { q: "Saya harus menahan diri untuk tidak terlalu banyak melibatkan diri/mencampuri masalah orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya merasa bahwa pembicaraan dari tetangga membosankan...!", o: ["Dalam banyak hal", "Di antaranya", "Hanya dalam beberapa hal tertentu"] },
-            { q: "Saya biasanya tidak pernah menyadari adanya propaganda-propaganda tersembunyi di dalam apa yang say abaca, kecuali bila ada orang lain yang menunjukkannya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Menurut pendapat saya, setiap cerita maupun film harus mengingatkan kita pada suatu moral.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Lebih banyak kesulitan ditimbulkan orang-orang oleh karena:", o: ["Mereka merubah dan turut campur terhadap cara yang sudah disetujui/dianggap baik.", "Di antaranya", "Mereka menolak cara-cara baru yang mempunyai harapan baik"] },
-            { q: "Terkadang saya merasa ragu-ragu untuk menggunakan pemikiran/ide-ide sendiri, khawatir kalau ide-ide tersebut tidak praktis.", o: ["Ya", "Di antaranya", "Tidak"] },
-            { q: "Saya tampaknya tidak cocok bila harus berhubungan dengan orang-orang yang kaku dan terlalu sopan (formil).", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Ingatan saya tidak banyak berubah dari hari ke hari.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Perhatian saya terhadap orang-orang lain mungkin tidaklah sebesar perhatian mereka terhadap diri saya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya agaknya bisa menahan diri dalam mengutarakan perasaan saya, daripada orang-orang lain.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Apabila kedua jarum dari sebuah jam saling bertemu setiap 65 menit, maka jam tersebut dapat dikatakan:", o: ["Terlambat", "Tepat", "Terlampau cepat"] },
-            { q: "Saya menjadi tidak sabar, marah dan gelisah, bila orang-orang memperlambat saya tidak pada tempatnya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Banyak orang mengatakan bahwa saya suka melakukan sesuatu dengan cara sendiri.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya biasanya tidak protes bila mendapat alat-alat yang sebenarnya kurang sesuai dengan yang seharusnya untuk melekukan suatu pekerjaan.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Pada waktu-waktu luang di rumah saya pergunakan untuk:", o: ["Ngobrol dan santai", "Diantaranya", "Melakukan pekerjaan tertentu"] },
-            { q: "Saya ini pemalu dan sangat berhati-hati dalam berteman dengan orang-orang baru.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya rasa apa yang diakatakan dalam puisi dapat juga dikatakan dengan kata-kata biasa.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya curiga bahwa orang yang baik-baik di depan saya, dapat \"berhianat\" di belakang saya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya rasa pengalaman-pengalaman yang sangat dramatis yang saya alami dalam tahun-tahun ini tidak mempengaruhi kepribadian saya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya cenderung untuk berbicara agak perlahan.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Saya merasa takut yang tak beralasan terhadap hal-hal tertentu misalnya pada binatang tertentu, tempat tertentu, benda tertentu, dan sebagainya.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Dalam melaksanakan suatu tugas dalam kelompok saya lebih senang:", o: ["Mencoba memajukan organisasi", "Di antaranya", "Mengurusi surat-surat dan menjaga agar peraturan-peraturan dipatuhi"] },
-            { q: "Agar saya dapat menentukan sikap yang baik terhadap suatu masalah/issue sosial, maka sebelumnya saya:", o: ["Membaca buku tentang/yang berhubungan dengan masalah tersebut", "Di antaranya", "Mempelajari data statistik dan fakta-fakta lainnya yang sehubungan dengan masalah tersebut"] },
-            { q: "Saya suka mimpi tentang hal-hal yang fantastis dan aneh-aneh.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Ditinggalkan dalam rumah kosong sendirian, saya cenderung merasa takut dan cemas.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Bila saya tidak menyukai orang-orang, maka saya bisa berpura-pura saya menyukai mereka.", o: ["Ya", "Kadang-kadang", "Tidak"] },
-            { q: "Kata yang manakah yang tidak tergolong dua kata lainnya?", o: ["Lari", "Melihat", "Menyentuh"] },
-            { q: "Bila ibunya Maya adalah kakak dari ayahnya Sidin maka bagaimanakah hubungan antara Sidin dengan ayahnya Maya?", o: ["Sepupu", "Kemenakan", "Paman"] }
-        ];
+    // Kunci Jawaban & Skoring
+    const scoringKey = {
+        'A': {name: 'SIFAT RAMAH (Warmth)', items: [{q:4,rev:true}, {q:5}, {q:24,rev:true}, {q:44,rev:true}, {q:51,rev:true}, {q:68}, {q:90,rev:true}]},
+        'B': {name: 'INTELIGENSI (Reasoning)', items: [{q:25}, {q:26}, {q:40, rev:true}, {q:54}, {q:75,rev:true}, {q:76,rev:true}, {q:104,rev:true}, {q:105,rev:true}]},
+        'C': {name: 'STABILITAS EMOSI (Emotional Stability)', items: [{q:3}, {q:15,rev:true}, {q:23}, {q:28,rev:true}, {q:34,rev:true}, {q:55}, {q:56,rev:true}, {q:71}, {q:92,rev:true}, {q:94}]},
+        'E': {name: 'DOMINASI (Dominance)', items: [{q:21,rev:true}, {q:38}, {q:50}, {q:60,rev:true}, {q:66,rev:true}]},
+        'F': {name: 'KEAKTIFAN (Liveliness)', items: [{q:1,rev:true}, {q:7}, {q:29}, {q:37,rev:true}, {q:62}, {q:73}]},
+        'G': {name: 'KEPATUHAN ATURAN (Rule-Consciousness)', items: [{q:6,rev:true}, {q:17}, {q:35}, {q:43}, {q:52}, {q:69}, {q:97}]},
+        'H': {name: 'KEBERANIAN SOSIAL (Social Boldness)', items: [{q:9}, {q:33}, {q:39,rev:true}, {q:42}, {q:57,rev:true}, {q:59}, {q:74}, {q:80}, {q:87}, {q:95}]},
+        'I': {name: 'KEPEKAAN (Sensitivity)', items: [{q:10}, {q:18}, {q:30}, {q:45}, {q:58}, {q:61}]},
+        'L': {name: 'KEWASPADAAN (Vigilance)', items: [{q:12,rev:true}, {q:49}, {q:67}]},
+        'M': {name: 'KETERBUKAAN (Abstractedness)', items: [{q:11}, {q:19}, {q:36}, {q:48}, {q:84,rev:true}, {q:93,rev:true}, {q:101}]},
+        'N': {name: 'KERAHASIAAN (Privateness)', items: [{q:2}, {q:13,rev:true}, {q:32,rev:true}, {q:47}, {q:63}, {q:89}, {q:91}]},
+        'O': {name: 'KEKHAWATIRAN (Apprehension)', items: [{q:16}, {q:77}, {q:86}, {q:102}]},
+        'Q1': {name: 'KETERBUKAAN PERUBAHAN (Openness to Change)', items: [{q:22}, {q:46}, {q:64}, {q:65}, {q:82}, {q:85}]},
+        'Q2': {name: 'KEMANDIRIAN (Self-Reliance)', items: [{q:20}, {q:78,rev:true}, {q:96,rev:true}]},
+        'Q3': {name: 'PERFEKSIONISME (Perfectionism)', items: [{q:8,rev:true}, {q:31,rev:true}, {q:70}, {q:81}, {q:88,rev:true}]},
+        'Q4': {name: 'TEGANGAN (Tension)', items: [{q:14}, {q:27,rev:true}, {q:41,rev:true}, {q:72,rev:true}, {q:83}, {q:98}]}
+    };
 
-        // --- Variabel & Elemen DOM ---
-        let currentQuestionIndex = 0;
-        let userAnswers = new Array(questions.length).fill(null);
-        let userData = {};
-
-        const welcomePage = document.getElementById('welcomePage');
-        const testPage = document.getElementById('testPage');
-        const loadingPage = document.getElementById('loadingPage');
-        const thankYouPage = document.getElementById('thankYouPage');
-        
-        const userDataForm = document.getElementById('userDataForm');
-        const questionNumberEl = document.getElementById('questionNumber');
-        const questionTextEl = document.getElementById('questionText');
-        const optionsContainer = document.getElementById('optionsContainer');
-        const prevButton = document.getElementById('prevButton');
-        const nextButton = document.getElementById('nextButton');
-        const progressBar = document.getElementById('progressBar');
-
-        const modal = document.getElementById('customModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalActions = document.getElementById('modalActions');
-        
-        // --- Event Listeners ---
-        userDataForm.addEventListener('submit', startTest);
-        prevButton.addEventListener('click', showPreviousQuestion);
-        nextButton.addEventListener('click', showNextQuestion);
-
-        // --- Fungsi Modal ---
-        function showModal(title, message, actions) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modalActions.innerHTML = '';
-            actions.forEach(action => {
-                const button = document.createElement('button');
-                button.textContent = action.text;
-                button.className = action.class;
-                button.onclick = () => {
-                    hideModal();
-                    if(action.callback) action.callback();
-                };
-                modalActions.appendChild(button);
-            });
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            modal.querySelector('.modal-container').classList.remove('scale-95');
-        }
-
-        function hideModal() {
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            modal.querySelector('.modal-container').classList.add('scale-95');
-        }
-
-        // --- Fungsi Utama ---
-        function startTest(e) {
-            e.preventDefault();
-            const formData = new FormData(userDataForm);
-            userData = Object.fromEntries(formData.entries());
-            
-            const tglInput = document.getElementById('tanggal');
-            if (!tglInput.value) {
-                tglInput.valueAsDate = new Date();
-                userData.tanggal = tglInput.value;
+    // Deskripsi Interpretasi (STEN Score) dengan Konteks Kepemimpinan Retail
+    const interpretations = {
+        'A': { 
+            low: "Cenderung menjaga jarak, kritis, dan formal.", 
+            high: "Ramah, berpartisipasi aktif, dan mudah bergaul.",
+            retail_leadership: {
+                low: "Akan fokus pada tugas dan standar, namun mungkin perlu upaya ekstra untuk membangun hubungan interpersonal yang hangat dengan tim.",
+                high: "Mampu membangun atmosfer tim yang positif dan kolaboratif, sangat baik dalam customer service dan memotivasi tim melalui pendekatan personal."
             }
-
-            welcomePage.classList.add('hidden');
-            testPage.classList.remove('hidden');
-            renderQuestion();
+        },
+        'B': { 
+            low: "Cenderung berpikir konkret, praktis, dan fokus pada solusi yang jelas.", 
+            high: "Cepat belajar, berpikiran abstrak, dan mampu menangani konsep-konsep kompleks.",
+            retail_leadership: {
+                low: "Efektif dalam menjalankan prosedur standar (SOP) dan tugas operasional harian. Mungkin memerlukan dukungan dalam analisis data atau strategi kompleks.",
+                high: "Mampu menganalisis tren pasar, memahami data penjualan, dan merumuskan strategi untuk meningkatkan kinerja toko. Cepat beradaptasi dengan teknologi baru."
+            }
+        },
+        'C': { 
+            low: "Reaktif secara emosional, mudah terpengaruh perasaan, dan cenderung labil di bawah tekanan.", 
+            high: "Tenang, matang secara emosional, dan stabil bahkan di bawah tekanan tinggi.",
+            retail_leadership: {
+                low: "Mungkin menunjukkan inkonsistensi dalam menghadapi tekanan, terutama saat komplain pelanggan atau target yang ketat. Perlu mengembangkan ketahanan stres.",
+                high: "Menjadi pilar penenang bagi tim di saat-saat sibuk atau penuh tekanan. Mampu menangani keluhan pelanggan dengan kepala dingin dan membuat keputusan yang objektif."
+            }
+        },
+        'E': { 
+            low: "Cenderung kooperatif, menghindari konflik, dan akomodatif terhadap orang lain.", 
+            high: "Asertif, kompetitif, dominan, dan suka memimpin.",
+            retail_leadership: {
+                low: "Pemimpin yang suportif dan baik dalam menjaga harmoni tim. Mungkin perlu lebih tegas dalam mendelegasikan tugas atau menegakkan aturan.",
+                high: "Berani mengambil keputusan, mendorong tim untuk mencapai target penjualan yang tinggi. Perlu menyeimbangkan ambisi dengan empati agar tidak terkesan otoriter."
+            }
+        },
+        'F': { 
+            low: "Serius, pendiam, berhati-hati, dan cenderung introspektif.", 
+            high: "Antusias, bersemangat, ekspressif, dan spontan.",
+            retail_leadership: {
+                low: "Fokus pada detail dan efisiensi operasional. Mungkin perlu secara sadar menciptakan suasana kerja yang lebih positif dan menyenangkan.",
+                high: "Menjadi sumber energi bagi tim, mampu membangkitkan semangat saat briefing pagi dan memotivasi tim untuk proaktif melayani pelanggan."
+            }
+        },
+        'G': { 
+            low: "Fleksibel, kurang terikat pada aturan, dan cenderung pragmatis.", 
+            high: "Bertanggung jawab, teliti, berpegang pada prinsip, dan sangat sadar akan tugas.",
+            retail_leadership: {
+                low: "Mampu beradaptasi dengan situasi tak terduga, namun berisiko kurang konsisten dalam menerapkan standar perusahaan (misal: display, kebersihan).",
+                high: "Sangat dapat diandalkan dalam menjaga standar operasional, mengelola inventaris, dan memastikan semua aturan diikuti. Menjadi contoh integritas bagi tim."
+            }
+        },
+        'H': { 
+            low: "Pemalu, sensitif terhadap kritik, dan lebih suka berada di belakang layar.", 
+            high: "Berani secara sosial, suka petualangan, dan tidak ragu mengambil inisiatif sosial.",
+            retail_leadership: {
+                low: "Cenderung memimpin dari belakang layar, baik dalam tugas administratif. Mungkin merasa kurang nyaman saat harus presentasi di depan tim besar atau menghadapi pelanggan yang agresif.",
+                high: "Percaya diri dalam berinteraksi dengan pelanggan dan tim, tidak ragu untuk mencoba program promosi baru, dan proaktif dalam memperluas jaringan."
+            }
+        },
+        'I': { 
+            low: "Praktis, realistis, logis, dan cenderung membuat keputusan berdasarkan fakta.", 
+            high: "Sensitif, estetis, mengandalkan intuisi, dan peka terhadap perasaan orang lain.",
+            retail_leadership: {
+                low: "Fokus pada fakta dan angka, baik dalam manajemen stok dan efisiensi. Mungkin kurang peka terhadap nuansa dinamika tim atau kebutuhan emosional staf.",
+                high: "Memiliki kepekaan terhadap visual merchandising (display produk) dan pengalaman pelanggan. Mampu memahami kebutuhan tim secara personal."
+            }
+        },
+        'L': { 
+            low: "Percaya, pemaaf, dan mudah menerima orang lain tanpa curiga.", 
+            high: "Waspada, cenderung curiga, dan skeptis terhadap niat orang lain.",
+            retail_leadership: {
+                low: "Membangun lingkungan kerja yang didasari kepercayaan, namun perlu waspada agar tidak terlalu mudah dimanfaatkan atau lalai dalam pengawasan.",
+                high: "Cermat dalam mengawasi potensi masalah (misal: kecurangan, penyusutan barang), namun perlu berhati-hati agar tidak menciptakan budaya saling curiga di antara tim."
+            }
+        },
+        'M': { 
+            low: "Praktis, berorientasi pada detail, dan fokus pada hal-hal yang konkret.", 
+            high: "Imajinatif, berorientasi pada ide besar, dan terkadang kurang memperhatikan detail praktis.",
+            retail_leadership: {
+                low: "Sangat baik dalam memastikan operasional harian berjalan lancar dan sesuai standar. Fokus pada 'di sini dan saat ini'.",
+                high: "Mampu memikirkan ide-ide kreatif untuk promosi atau event di toko, namun mungkin memerlukan bantuan untuk menerjemahkan ide tersebut menjadi langkah-langkah konkret."
+            }
+        },
+        'N': { 
+            low: "Terus terang, sederhana, dan tulus dalam berkomunikasi.", 
+            high: "Diplomatis, cerdik, sadar sosial, dan mampu 'membaca situasi'.",
+            retail_leadership: {
+                low: "Komunikasinya lugas dan apa adanya, sehingga mudah dipahami oleh tim. Namun, mungkin perlu melatih cara memberi masukan yang lebih halus dan diplomatis.",
+                high: "Pintar dalam berkomunikasi dengan berbagai pihak, dari staf hingga manajemen atas. Mampu menangani situasi sosial yang rumit dengan baik."
+            }
+        },
+        'O': { 
+            low: "Percaya diri, tenang, aman, dan tidak mudah cemas.", 
+            high: "Khawatir, ragu-ragu, cemas, dan cenderung menyalahkan diri sendiri.",
+            retail_leadership: {
+                low: "Memancarkan ketenangan dan kepercayaan diri yang dapat menular ke tim, bahkan di bawah tekanan. Mampu mengambil risiko yang diperhitungkan.",
+                high: "Cenderung sangat berhati-hati dan mengantisipasi masalah, namun kekhawatiran berlebih dapat menghambat pengambilan keputusan dan menimbulkan kecemasan pada tim."
+            }
+        },
+        'Q1': { 
+            low: "Konservatif, menghargai tradisi, dan cenderung menolak cara-cara baru.", 
+            high: "Terbuka pada perubahan, suka bereksperimen, dan berpikir kritis terhadap tradisi.",
+            retail_leadership: {
+                low: "Konsisten dalam menjalankan sistem yang sudah ada dan terbukti berhasil. Mungkin resisten terhadap perubahan atau cara kerja baru.",
+                high: "Antusias dalam mencoba teknologi baru (misal: sistem kasir, aplikasi) atau metode promosi yang inovatif. Mendorong budaya perbaikan berkelanjutan."
+            }
+        },
+        'Q2': { 
+            low: "Bergantung pada kelompok, merupakan 'team player', dan membutuhkan persetujuan sosial.", 
+            high: "Mandiri, suka memutuskan sendiri, dan tidak terlalu bergantung pada dukungan kelompok.",
+            retail_leadership: {
+                low: "Sangat baik dalam membangun konsensus dan memastikan semua anggota tim merasa dilibatkan dalam pengambilan keputusan. Menjaga kekompakan tim.",
+                high: "Cepat dan tegas dalam mengambil keputusan, mampu bekerja mandiri tanpa perlu banyak supervisi. Perlu memastikan tim tetap merasa didengar."
+            }
+        },
+        'Q3': { 
+            low: "Fleksibel, kurang terorganisir, dan dapat mentolerir ketidakpastian.", 
+            high: "Terkontrol, disiplin, terorganisir, dan memiliki keinginan kuat untuk keteraturan.",
+            retail_leadership: {
+                low: "Mampu beradaptasi dengan perubahan jadwal atau prioritas mendadak, namun bisa jadi kurang konsisten dalam pelaporan atau administrasi.",
+                high: "Sangat terstruktur dalam membuat jadwal kerja, mengelola tugas, dan memastikan semua laporan selesai tepat waktu. Menjaga keteraturan di area kerja."
+            }
+        },
+        'Q4': { 
+            low: "Rileks, sabar, tenang, dan tidak mudah terprovokasi.", 
+            high: "Tegang, berenergi tinggi, tidak sabaran, dan mudah frustrasi.",
+            retail_leadership: {
+                low: "Menciptakan lingkungan kerja yang tenang dan tidak terburu-buru. Efektif dalam tugas yang membutuhkan ketelitian dan kesabaran.",
+                high: "Memiliki dorongan kuat untuk menyelesaikan pekerjaan dengan cepat, menjaga ritme kerja yang tinggi. Perlu mengelola stres agar tidak mudah frustrasi saat ada hambatan."
+            }
         }
+    };
+    
+    // Pertanyaan wawancara berdasarkan skor
+    const interviewPrompts = {
+        'B_low': {
+            title: 'Kemampuan Analisis & Pemecahan Masalah',
+            question: 'Ceritakan pengalaman Anda ketika dihadapkan pada masalah operasional di toko yang belum pernah Anda temui sebelumnya. Langkah-langkah konkret apa yang Anda ambil untuk menyelesaikannya?'
+        },
+        'C_low': {
+            title: 'Manajemen Stres & Stabilitas Emosi',
+            question: 'Bisakah Anda ceritakan situasi paling menekan yang pernah Anda hadapi di tempat kerja, misalnya saat menghadapi komplain pelanggan yang sangat marah atau target penjualan yang sangat tinggi? Bagaimana Anda merespon dan mengelola emosi Anda saat itu?'
+        },
+        'E_low': {
+            title: 'Ketegasan & Manajemen Kinerja',
+            question: 'Bagaimana pendekatan Anda saat harus memberikan feedback negatif atau menegur anggota tim yang kinerjanya di bawah standar? Bisakah berikan contoh konkret?'
+        },
+        'G_low': {
+            title: 'Kepatuhan pada Standar & Prosedur',
+            question: 'Dalam industri retail, konsistensi SOP sangat penting. Apa pandangan Anda jika ada aturan yang menurut Anda kurang efisien? Apakah Anda akan mengikutinya atau mencari cara lain?'
+        },
+        'L_high': {
+            title: 'Membangun Kepercayaan & Delegasi',
+            question: 'Kepercayaan adalah kunci dalam tim. Bagaimana Anda membangun kepercayaan dengan tim Anda? Seberapa besar Anda mendelegasikan tugas-tugas penting kepada mereka dan bagaimana Anda memonitornya tanpa terkesan mengontrol secara berlebihan (micromanage)?'
+        },
+        'O_high': {
+            title: 'Pengambilan Keputusan & Kepercayaan Diri',
+            question: 'Ceritakan sebuah keputusan sulit yang harus Anda buat dengan cepat di pekerjaan sebelumnya. Apa yang membuat Anda ragu, dan bagaimana Anda akhirnya mengatasi keraguan tersebut untuk mengambil keputusan?'
+        }
+    };
 
-        function renderQuestion() {
-            const question = questions[currentQuestionIndex];
-            questionNumberEl.textContent = currentQuestionIndex + 1;
-            questionTextEl.textContent = question.q;
-            optionsContainer.innerHTML = '';
 
-            question.o.forEach((option, index) => {
-                const optionValue = ['a', 'b', 'c'][index];
-                const isChecked = userAnswers[currentQuestionIndex] === optionValue;
-                
-                optionsContainer.innerHTML += `
-                    <div>
-                        <input type="radio" id="option${index}" name="answer" value="${optionValue}" ${isChecked ? 'checked' : ''}>
-                        <label for="option${index}" class="block w-full text-left p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-400">
-                            <span class="font-bold mr-3">${optionValue.toUpperCase()}.</span> ${option}
-                        </label>
-                    </div>
-                `;
+    // Elemen DOM
+    const welcomePage = document.getElementById('welcomePage');
+    const testPage = document.getElementById('testPage');
+    const resultPage = document.getElementById('resultPage');
+    const loadingPage = document.getElementById('loadingPage');
+    const candidateForm = document.getElementById('candidateForm');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const finishTestBtn = document.getElementById('finishTestBtn');
+    const progressBar = document.getElementById('progressBar');
+    const customModal = document.getElementById('customModal');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalOkBtn = document.getElementById('modalOkBtn');
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // Memuat Pertanyaan
+    function loadQuestions() {
+        questions.forEach((q) => {
+            const questionElement = document.createElement('div');
+            questionElement.className = 'question-block p-6 border border-gray-200 rounded-lg transition-all duration-300';
+            questionElement.id = `question-block-${q.no}`;
+            questionElement.innerHTML = `
+                <p class="font-semibold mb-4 text-lg">${q.no}. ${q.q}</p>
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 custom-radio">
+                    <input type="radio" id="q${q.no}_a" name="q${q.no}" value="a" required>
+                    <label for="q${q.no}_a">${q.a}</label>
+                    <input type="radio" id="q${q.no}_b" name="q${q.no}" value="b" required>
+                    <label for="q${q.no}_b">${q.b}</label>
+                    <input type="radio" id="q${q.no}_c" name="q${q.no}" value="c" required>
+                    <label for="q${q.no}_c">${q.c}</label>
+                </div>
+            `;
+            questionsContainer.appendChild(questionElement);
+        });
+
+        // Update progress bar and auto-scroll
+        const radios = document.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                updateProgress();
+                const currentQuestionNumber = parseInt(e.target.name.replace('q', ''));
+                scrollToNextUnanswered(currentQuestionNumber);
+            });
+        });
+    }
+
+    function scrollToNextUnanswered(currentQuestionNum) {
+        // Debounce to prevent rapid scrolling
+        clearTimeout(window.scrollTimeout);
+        window.scrollTimeout = setTimeout(() => {
+            for (let i = currentQuestionNum + 1; i <= questions.length; i++) {
+                const isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
+                if (!isAnswered) {
+                    const nextQuestionBlock = document.getElementById(`question-block-${i}`);
+                    if (nextQuestionBlock) {
+                        nextQuestionBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        break;
+                    }
+                }
+            }
+        }, 300); // 300ms delay
+    }
+
+    function updateProgress() {
+        const totalQuestions = questions.length;
+        const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+        const progress = (answeredQuestions / totalQuestions) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+
+    candidateForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        candidateData.fullName = document.getElementById('fullName').value;
+        candidateData.email = document.getElementById('email').value;
+        candidateData.position = document.getElementById('position').value;
+        showPage('testPage');
+    });
+
+    finishTestBtn.addEventListener('click', () => {
+        const allQuestions = document.querySelectorAll('.question-block');
+        let firstUnanswered = null;
+        let unansweredCount = 0;
+
+        allQuestions.forEach(block => {
+            const questionNum = block.id.split('-')[2];
+            const isAnswered = document.querySelector(`input[name="q${questionNum}"]:checked`);
+            block.style.borderColor = '#E5E7EB'; // Reset border
+            if (!isAnswered) {
+                unansweredCount++;
+                if (!firstUnanswered) {
+                    firstUnanswered = block;
+                }
+            }
+        });
+
+        if (unansweredCount > 0) {
+            showAlert(`Anda belum menjawab ${unansweredCount} pertanyaan. Silakan lengkapi semua jawaban.`, () => {
+                if (firstUnanswered) {
+                    firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstUnanswered.style.borderColor = '#EF4444'; // Highlight with red border
+                }
+            });
+        } else {
+            showConfirm('Apakah Anda yakin ingin menyelesaikan tes ini?', () => {
+                calculateResults();
+            });
+        }
+    });
+
+    function showAlert(message, callback) {
+        modalMessage.textContent = message;
+        modalConfirmBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.style.display = 'inline-block';
+        customModal.classList.add('visible');
+
+        const okHandler = () => {
+            customModal.classList.remove('visible');
+            modalOkBtn.removeEventListener('click', okHandler);
+            if (callback) callback();
+        };
+        modalOkBtn.addEventListener('click', okHandler);
+    }
+
+    function showConfirm(message, confirmCallback, cancelCallback) {
+        modalMessage.textContent = message;
+        modalConfirmBtn.style.display = 'inline-block';
+        modalCancelBtn.style.display = 'inline-block';
+        modalOkBtn.style.display = 'none';
+        customModal.classList.add('visible');
+
+        const confirmHandler = () => {
+            customModal.classList.remove('visible');
+            confirmCallback();
+            cleanup();
+        };
+
+        const cancelHandler = () => {
+            customModal.classList.remove('visible');
+            if (cancelCallback) cancelCallback();
+            cleanup();
+        };
+
+        const cleanup = () => {
+            modalConfirmBtn.removeEventListener('click', confirmHandler);
+            modalCancelBtn.removeEventListener('click', cancelHandler);
+        };
+        
+        modalConfirmBtn.addEventListener('click', confirmHandler);
+        modalCancelBtn.addEventListener('click', cancelHandler);
+    }
+
+    function calculateResults() {
+        showPage('loadingPage'); // Show loading screen immediately
+
+        // Use setTimeout to allow the UI to update before heavy calculation
+        setTimeout(() => {
+            const answers = {};
+            questions.forEach(q => {
+                answers[q.no] = document.querySelector(`input[name="q${q.no}"]:checked`).value;
             });
 
-            document.querySelectorAll('input[name="answer"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    userAnswers[currentQuestionIndex] = e.target.value;
+            const calculatedScores = {};
+            for (const factor in scoringKey) {
+                let rawScore = 0;
+                scoringKey[factor].items.forEach(rule => {
+                    const answer = answers[rule.q];
+                    let score = 0;
+                    if (answer === 'a') score = 2;
+                    if (answer === 'b') score = 1;
+                    if (answer === 'c') score = 0;
+                    
+                    if (rule.rev) { // Reverse scoring
+                        score = 2 - score;
+                    }
+                    rawScore += score;
                 });
-            });
-
-            updateNavigation();
-            updateProgressBar();
-        }
-
-        function updateNavigation() {
-            prevButton.disabled = currentQuestionIndex === 0;
-            if (currentQuestionIndex === questions.length - 1) {
-                nextButton.textContent = 'Selesai & Kirim Jawaban';
-                nextButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                nextButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            } else {
-                nextButton.textContent = 'Lanjut';
-                nextButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                nextButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                const maxRaw = scoringKey[factor].items.length * 2;
+                const sten = rawToSten(factor, rawScore, maxRaw);
+                calculatedScores[factor] = { rawScore, maxRaw, sten };
             }
-        }
-        
-        function updateProgressBar() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            progressBar.style.width = `${progress}%`;
-        }
+            
+            processAndSendResults(calculatedScores);
+        }, 100); // 100ms delay for UI render
+    }
+    
+    // Konversi Raw Score ke STEN (Standard Ten)
+    function rawToSten(factor, rawScore, maxRaw) {
+        if (maxRaw === 0) return 5; // Avoid division by zero
+        const percentage = (rawScore / maxRaw) * 100;
+        if (percentage <= 2.5) return 1;
+        if (percentage <= 7) return 2;
+        if (percentage <= 16) return 3;
+        if (percentage <= 31) return 4;
+        if (percentage <= 50) return 5;
+        if (percentage <= 69) return 6;
+        if (percentage <= 84) return 7;
+        if (percentage <= 93) return 8;
+        if (percentage <= 97.5) return 9;
+        return 10;
+    }
 
-        function showPreviousQuestion() {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                renderQuestion();
+    async function processAndSendResults(scores) {
+        try {
+            const doc = new jspdf.jsPDF();
+            const pageHeight = doc.internal.pageSize.height;
+            let currentY = 22;
+            const leftMargin = 14;
+            const rightMargin = 200;
+            const lineSpacing = 6;
+            const sectionSpacing = 10;
+
+            function checkPageBreak(requiredSpace = 20) {
+                if (currentY + requiredSpace > pageHeight - 15) {
+                    doc.addPage();
+                    currentY = 20;
+                }
             }
-        }
-
-        function showNextQuestion() {
-            if (userAnswers[currentQuestionIndex] === null) {
-                showModal('Peringatan', 'Mohon pilih salah satu jawaban sebelum melanjutkan.', [
-                    { text: 'OK', class: 'bg-blue-600 text-white font-bold py-2 px-6 rounded-lg' }
-                ]);
-                return;
+            
+            function addWrappedText(text, options) {
+                const { x = leftMargin, y = currentY, maxWidth = rightMargin - leftMargin, fontStyle = 'normal', fontSize = 10 } = options;
+                doc.setFont('helvetica', fontStyle);
+                doc.setFontSize(fontSize);
+                const splitText = doc.splitTextToSize(text, maxWidth);
+                doc.text(splitText, x, y);
+                currentY += (splitText.length * (fontSize * 0.35)) + 2; // Approximate height
             }
 
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                renderQuestion();
-            } else {
-                showModal('Konfirmasi', 'Apakah Anda yakin ingin mengirim jawaban Anda? Anda tidak dapat mengubahnya lagi setelah ini.', [
-                    { text: 'Batal', class: 'bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg' },
-                    { text: 'Kirim', class: 'bg-green-600 text-white font-bold py-2 px-6 rounded-lg', callback: submitAnswers }
-                ]);
-            }
-        }
+            // PAGE HEADER
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('Laporan Psikologis Mendalam - 16PF', leftMargin, currentY);
+            currentY += sectionSpacing;
 
-        function submitAnswers() {
-            testPage.classList.add('hidden');
-            loadingPage.classList.remove('hidden');
+            // CANDIDATE INFO
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Nama Kandidat: ${candidateData.fullName}`, leftMargin, currentY);
+            currentY += lineSpacing;
+            doc.text(`Email: ${candidateData.email}`, leftMargin, currentY);
+            currentY += lineSpacing;
+            doc.text(`Posisi Dilamar: ${candidateData.position}`, leftMargin, currentY);
+            currentY += lineSpacing;
+            doc.text(`Tanggal Tes: ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`, leftMargin, currentY);
+            currentY += sectionSpacing + 5;
 
-            // --- PERBAIKAN FINAL DENGAN METODE FORM SUBMISSION ---
-            try {
-                // Buat form baru secara dinamis
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = SCRIPT_URL;
-                form.target = 'hidden_iframe'; // Targetkan ke iframe agar halaman tidak reload
+            // DETAIL ANALYSIS
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Analisis Detail Faktor Kepribadian', leftMargin, currentY);
+            currentY += 8;
 
-                // Tambahkan data user sebagai input tersembunyi
-                for (const key in userData) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = userData[key];
-                    form.appendChild(input);
+            for (const factor in scores) {
+                checkPageBreak(40);
+                const { rawScore, maxRaw, sten } = scores[factor];
+                let tendency, description, leadership;
+
+                if (sten <= 3) {
+                    tendency = "Rendah";
+                    description = interpretations[factor].low;
+                    leadership = interpretations[factor].retail_leadership.low;
+                } else if (sten >= 8) {
+                    tendency = "Tinggi";
+                    description = interpretations[factor].high;
+                    leadership = interpretations[factor].retail_leadership.high;
+                } else {
+                    tendency = "Sedang";
+                    description = `Kandidat menunjukkan keseimbangan antara dua kutub kepribadian pada faktor ini.`;
+                    leadership = `Cenderung fleksibel, dapat menunjukkan karakteristik dari kedua sisi tergantung pada situasi.`;
                 }
 
-                // Tambahkan data jawaban sebagai input tersembunyi
-                const answersInput = document.createElement('input');
-                answersInput.type = 'hidden';
-                answersInput.name = 'answers';
-                answersInput.value = JSON.stringify(userAnswers);
-                form.appendChild(answersInput);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Faktor ${factor}: ${scoringKey[factor].name}`, leftMargin, currentY);
+                currentY += lineSpacing;
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Skor Mentah: ${rawScore} dari ${maxRaw} (Kecenderungan: ${tendency})`, leftMargin, currentY);
+                currentY += lineSpacing;
 
-                // Tambahkan form ke body, kirim, lalu hapus
-                document.body.appendChild(form);
-                form.submit();
-                document.body.removeChild(form);
-
-                // Karena kita tidak bisa mendapatkan respon dari metode ini,
-                // kita anggap pengiriman berhasil dan lanjutkan setelah jeda.
-                setTimeout(() => {
-                    loadingPage.classList.add('hidden');
-                    thankYouPage.classList.remove('hidden');
-                }, 4000); // Jeda 4 detik untuk memberi waktu server memproses
-
-            } catch (error) {
-                 // Blok ini untuk menangkap error jika pembuatan form gagal (sangat jarang)
-                console.error('Error saat membuat form:', error);
-                loadingPage.classList.add('hidden');
-                testPage.classList.remove('hidden'); 
-                showModal(
-                    'Error Klien', 
-                    `Terjadi masalah pada browser Anda: ${error.message}. Mohon muat ulang halaman dan coba lagi.`, 
-                    [
-                        { text: 'OK', class: 'bg-red-600 text-white font-bold py-2 px-6 rounded-lg' }
-                    ]
-                );
+                addWrappedText(`Deskripsi Umum: ${description}`, {});
+                addWrappedText(`Implikasi Kerja untuk Kepemimpinan: ${leadership}`, {});
+                currentY += 4;
             }
-        }
-        
-        // Inisialisasi tanggal
-        document.getElementById('tanggal').valueAsDate = new Date();
+            
+            // ANALYTICAL SUMMARY & RECOMMENDATION
+            checkPageBreak(80);
+            currentY += sectionSpacing;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Ringkasan Analitis & Rekomendasi', leftMargin, currentY);
+            currentY += 8;
 
+            const sortedScores = Object.entries(scores).map(([factor, data]) => ({ factor, ...data })).sort((a, b) => b.sten - a.sten);
+            const strengths = sortedScores.slice(0, 3).filter(s => s.sten >= 7);
+            const areasForAttention = sortedScores.slice(-3).filter(s => s.sten <= 4).reverse();
+            
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Area Kekuatan Potensial', leftMargin, currentY);
+            currentY += lineSpacing;
+            doc.setFont('helvetica', 'normal');
+            if(strengths.length > 0) {
+                strengths.forEach(s => {
+                     addWrappedText(`• ${scoringKey[s.factor].name} (${s.sten}): Menunjukkan potensi kuat dalam aspek ${interpretations[s.factor].high.toLowerCase().replace('.', '')}.`, {});
+                });
+            } else {
+                 addWrappedText('Tidak ada kekuatan yang menonjol secara signifikan (skor STEN >= 7). Profil cenderung seimbang.', {});
+            }
+            currentY += 4;
+
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Area yang Perlu Diperhatikan', leftMargin, currentY);
+            currentY += lineSpacing;
+            doc.setFont('helvetica', 'normal');
+            if(areasForAttention.length > 0) {
+                areasForAttention.forEach(s => {
+                     addWrappedText(`• ${scoringKey[s.factor].name} (${s.sten}): Cenderung menunjukkan sifat ${interpretations[s.factor].low.toLowerCase().replace('.', '')}.`, {});
+                });
+            } else {
+                 addWrappedText('Tidak ada area perhatian yang menonjol secara signifikan (skor STEN <= 4). Profil cenderung seimbang.', {});
+            }
+            currentY += 4;
+            
+            // LEADERSHIP PROFILE
+            let leadershipProfile = "Profil Seimbang (Balanced Leader)";
+            if(scores['E'].sten >= 8 && scores['H'].sten >= 7) leadershipProfile = "Pemimpin Penggerak (Driving Leader)";
+            if(scores['A'].sten >= 7 && scores['I'].sten >= 7) leadershipProfile = "Pemimpin Suportif (Supportive Leader)";
+            if(scores['G'].sten >= 8 && scores['Q3'].sten >= 8) leadershipProfile = "Pemimpin Terstruktur (Structured Leader)";
+
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Profil Kepemimpinan Kandidat', leftMargin, currentY);
+            currentY += lineSpacing;
+            doc.setFont('helvetica', 'normal');
+            addWrappedText(leadershipProfile, {});
+            currentY += sectionSpacing;
+
+            // INTERVIEW RECOMMENDATIONS
+            checkPageBreak(50);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Rekomendasi & Pertanyaan Wawancara', leftMargin, currentY);
+            currentY += 6;
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            addWrappedText('Profil ini menunjukkan beberapa area yang memerlukan pendalaman lebih lanjut. Direkomendasikan untuk fokus pada area berikut saat wawancara berbasis kompetensi:', {});
+            currentY += 4;
+            
+            let hasPrompts = false;
+            if (scores['B'].sten <= 4) { hasPrompts = true; addWrappedText(`• ${interviewPrompts.B_low.title}: "${interviewPrompts.B_low.question}"`, {}); }
+            if (scores['C'].sten <= 4) { hasPrompts = true; addWrappedText(`• ${interviewPrompts.C_low.title}: "${interviewPrompts.C_low.question}"`, {}); }
+            if (scores['E'].sten <= 4) { hasPrompts = true; addWrappedText(`• ${interviewPrompts.E_low.title}: "${interviewPrompts.E_low.question}"`, {}); }
+            if (scores['G'].sten <= 4) { hasPrompts = true; addWrappedText(`• ${interviewPrompts.G_low.title}: "${interviewPrompts.G_low.question}"`, {}); }
+            if (scores['L'].sten >= 7) { hasPrompts = true; addWrappedText(`• ${interviewPrompts.L_high.title}: "${interviewPrompts.L_high.question}"`, {}); }
+            if (scores['O'].sten >= 7) { hasPrompts = true; addWrappedText(`• ${interviewPrompts.O_high.title}: "${interviewPrompts.O_high.question}"`, {}); }
+
+            if (!hasPrompts) {
+                addWrappedText('Tidak ada rekomendasi pertanyaan khusus berdasarkan skor ekstrim. Wawancara dapat difokuskan pada pengalaman kerja dan studi kasus yang relevan.', {});
+            }
+
+            // FOOTER
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Laporan ini dibuat secara otomatis oleh Sistem Psikotes Online.`, leftMargin, pageHeight - 10);
+                doc.text(`Halaman ${i} dari ${pageCount}`, rightMargin - 15, pageHeight - 10);
+            }
+            
+            const pdfBase64 = doc.output('datauristring').split(',')[1];
+            
+            // Prepare payload for Google Apps Script
+            const fileName = `Laporan_Psikologis_16PF_${candidateData.fullName.replace(/\s/g, '_')}.pdf`;
+            const emailBody = `Berikut terlampir hasil psikotes 16 PF untuk:\n\n` +
+                              `Nama: ${candidateData.fullName}\n` +
+                              `Email: ${candidateData.email}\n` +
+                              `Posisi: ${candidateData.position}\n` +
+                              `Tanggal Tes: ${new Date().toLocaleDateString('id-ID')}\n\n` +
+                              `File PDF Laporan Psikologis Mendalam terlampir dalam email ini.`;
+
+            const payload = {
+                subject: `Laporan Psikologis 16 PF - ${candidateData.fullName}`,
+                body: emailBody,
+                base64Pdf: pdfBase64,
+                fileName: fileName
+            };
+
+            // Send data
+            const response = await fetch(googleScriptURL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            });
+            const result = await response.json();
+
+            if (result.result !== "success") {
+                throw new Error(result.message || 'Server mengembalikan error.');
+            }
+
+            showPage('resultPage');
+
+        } catch (error) {
+            console.error('Gagal memproses atau mengirim hasil:', error);
+            showPage('testPage'); // Go back to test page on error
+            showAlert("Gagal mengirim hasil tes. Mohon periksa koneksi internet Anda dan coba lagi, atau hubungi administrator.");
+        }
+    }
+    
+    // Inisialisasi
+    loadQuestions();
     </script>
 </body>
 </html>
