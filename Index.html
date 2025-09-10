@@ -300,133 +300,165 @@
         'Q4': {name: 'TEGANGAN (Tension)', items: [{q:14}, {q:27,rev:true}, {q:41,rev:true}, {q:72,rev:true}, {q:83}, {q:98}]}
     };
 
-    // Deskripsi Interpretasi (STEN Score) dengan Konteks Kepemimpinan Retail
+    // Deskripsi Interpretasi (STEN Score) dengan Konteks Kepemimpinan
     const interpretations = {
-        'A': { 
-            low: "Cenderung menjaga jarak, kritis, dan formal.", 
-            high: "Ramah, berpartisipasi aktif, dan mudah bergaul.",
+        'A': {
+            low: "Cenderung bersikap impersonal, formal, dan lebih fokus pada tugas daripada hubungan. Mungkin terlihat kaku atau kritis dalam interaksi sosial.",
+            medium: "Menunjukkan keseimbangan antara keramahan dan formalitas. Mampu bersikap profesional namun tetap bisa didekati oleh tim.",
+            high: "Sangat terbuka, hangat, dan mudah bergaul. Menikmati interaksi sosial dan secara alami membangun hubungan yang positif dengan orang lain.",
             retail_leadership: {
                 low: "Akan fokus pada tugas dan standar, namun mungkin perlu upaya ekstra untuk membangun hubungan interpersonal yang hangat dengan tim.",
+                medium: "Dapat menjaga hubungan kerja yang baik. Mampu fokus pada tugas tanpa mengabaikan aspek interpersonal, meskipun mungkin tidak se-ekspresif pemimpin yang sangat ramah.",
                 high: "Mampu membangun atmosfer tim yang positif dan kolaboratif, sangat baik dalam customer service dan memotivasi tim melalui pendekatan personal."
             }
         },
-        'B': { 
-            low: "Cenderung berpikir konkret, praktis, dan fokus pada solusi yang jelas.", 
-            high: "Cepat belajar, berpikiran abstrak, dan mampu menangani konsep-konsep kompleks.",
+        'B': {
+            low: "Cenderung berpikir secara konkret dan praktis. Lebih nyaman dengan fakta yang jelas dan instruksi langsung daripada teori abstrak.",
+            medium: "Memiliki kemampuan nalar yang memadai untuk tugas sehari-hari. Mampu memahami logika praktis namun mungkin perlu waktu lebih untuk konsep yang sangat abstrak.",
+            high: "Cepat dalam memahami konsep-konsep baru dan abstrak. Memiliki kemampuan nalar yang kuat untuk memecahkan masalah yang kompleks.",
             retail_leadership: {
                 low: "Efektif dalam menjalankan prosedur standar (SOP) dan tugas operasional harian. Mungkin memerlukan dukungan dalam analisis data atau strategi kompleks.",
-                high: "Mampu menganalisis tren pasar, memahami data penjualan, dan merumuskan strategi untuk meningkatkan kinerja toko. Cepat beradaptasi dengan teknologi baru."
+                medium: "Cukup kompeten untuk menangani masalah operasional rutin. Untuk analisis data yang kompleks, mungkin memerlukan dukungan atau verifikasi tambahan.",
+                high: "Mampu menganalisis tren pasar, memahami data penjualan, dan merumuskan strategi untuk meningkatkan kinerja. Cepat beradaptasi dengan teknologi baru."
             }
         },
-        'C': { 
-            low: "Reaktif secara emosional, mudah terpengaruh perasaan, dan cenderung labil di bawah tekanan.", 
-            high: "Tenang, matang secara emosional, dan stabil bahkan di bawah tekanan tinggi.",
+        'C': {
+            low: "Cenderung reaktif terhadap perasaan dan mudah terpengaruh oleh stres. Mungkin mengalami perubahan suasana hati yang terlihat jelas.",
+            medium: "Cukup stabil secara emosional dan dapat menangani tingkat stres normal. Mungkin menunjukkan reaksi emosional pada situasi yang sangat menekan.",
+            high: "Sangat tenang, matang, dan stabil secara emosional. Mampu menghadapi realitas dan tekanan dengan kepala dingin tanpa mudah terganggu.",
             retail_leadership: {
                 low: "Mungkin menunjukkan inkonsistensi dalam menghadapi tekanan, terutama saat komplain pelanggan atau target yang ketat. Perlu mengembangkan ketahanan stres.",
+                medium: "Dapat menjaga ketenangan dalam kondisi kerja yang normal. Perlu waspada terhadap potensi stres berlebih saat menghadapi krisis atau target yang sangat tinggi.",
                 high: "Menjadi pilar penenang bagi tim di saat-saat sibuk atau penuh tekanan. Mampu menangani keluhan pelanggan dengan kepala dingin dan membuat keputusan yang objektif."
             }
         },
-        'E': { 
-            low: "Cenderung kooperatif, menghindari konflik, dan akomodatif terhadap orang lain.", 
-            high: "Asertif, kompetitif, dominan, dan suka memimpin.",
+        'E': {
+            low: "Cenderung bersikap akomodatif, rendah hati, dan menghindari konflik. Lebih memilih untuk bekerja sama daripada memaksakan kehendak.",
+            medium: "Fleksibel dalam pendekatan, bisa bersikap asertif saat diperlukan namun juga bisa kooperatif. Tidak selalu mencari posisi dominan.",
+            high: "Sangat asertif, kompetitif, dan memiliki keinginan kuat untuk mempengaruhi atau memimpin orang lain. Teguh pada pendirian.",
             retail_leadership: {
                 low: "Pemimpin yang suportif dan baik dalam menjaga harmoni tim. Mungkin perlu lebih tegas dalam mendelegasikan tugas atau menegakkan aturan.",
+                medium: "Mampu memimpin secara situasional, baik dengan mengambil alih maupun dengan berkolaborasi. Keseimbangan yang baik antara mengarahkan dan mendengarkan tim.",
                 high: "Berani mengambil keputusan, mendorong tim untuk mencapai target penjualan yang tinggi. Perlu menyeimbangkan ambisi dengan empati agar tidak terkesan otoriter."
             }
         },
-        'F': { 
-            low: "Serius, pendiam, berhati-hati, dan cenderung introspektif.", 
-            high: "Antusias, bersemangat, ekspressif, dan spontan.",
+        'F': {
+            low: "Cenderung serius, pendiam, dan berhati-hati dalam bertindak. Lebih suka lingkungan yang tenang dan terprediksi.",
+            medium: "Menunjukkan kombinasi antara keseriusan dan antusiasme. Cukup bersemangat namun tetap dapat menjaga fokus dan ketenangan.",
+            high: "Sangat antusias, spontan, dan ekspresif. Menikmati suasana yang hidup dan penuh energi, serta suka menjadi bagian dari keramaian.",
             retail_leadership: {
                 low: "Fokus pada detail dan efisiensi operasional. Mungkin perlu secara sadar menciptakan suasana kerja yang lebih positif dan menyenangkan.",
+                medium: "Dapat menjaga suasana tim tetap produktif dan positif. Mampu bersikap serius saat membahas target, namun juga bisa mencairkan suasana saat diperlukan.",
                 high: "Menjadi sumber energi bagi tim, mampu membangkitkan semangat saat briefing pagi dan memotivasi tim untuk proaktif melayani pelanggan."
             }
         },
-        'G': { 
-            low: "Fleksibel, kurang terikat pada aturan, dan cenderung pragmatis.", 
-            high: "Bertanggung jawab, teliti, berpegang pada prinsip, dan sangat sadar akan tugas.",
+        'G': {
+            low: "Cenderung fleksibel dan pragmatis terhadap aturan. Lebih mengutamakan hasil daripada mengikuti prosedur secara kaku.",
+            medium: "Memahami pentingnya aturan namun bisa bersikap fleksibel jika situasi menuntut. Cukup bertanggung jawab tanpa menjadi kaku.",
+            high: "Sangat teliti, bertanggung jawab, dan berpegang teguh pada prinsip dan aturan. Memiliki standar internal yang tinggi.",
             retail_leadership: {
-                low: "Mampu beradaptasi dengan situasi tak terduga, namun berisiko kurang konsisten dalam menerapkan standar perusahaan (misal: display, kebersihan).",
+                low: "Mampu beradaptasi dengan situasi tak terduga, namun berisiko kurang konsisten dalam menerapkan standar perusahaan.",
+                medium: "Dapat dipercaya untuk mengikuti prosedur, namun juga bisa memberikan kelonggaran yang masuk akal kepada tim. Menjaga keseimbangan antara aturan dan moral tim.",
                 high: "Sangat dapat diandalkan dalam menjaga standar operasional, mengelola inventaris, dan memastikan semua aturan diikuti. Menjadi contoh integritas bagi tim."
             }
         },
-        'H': { 
-            low: "Pemalu, sensitif terhadap kritik, dan lebih suka berada di belakang layar.", 
-            high: "Berani secara sosial, suka petualangan, dan tidak ragu mengambil inisiatif sosial.",
+        'H': {
+            low: "Cenderung pemalu, berhati-hati, dan sensitif dalam situasi sosial. Lebih memilih untuk mengamati daripada menjadi pusat perhatian.",
+            medium: "Cukup percaya diri dalam situasi sosial yang familier, namun mungkin berhati-hati di lingkungan baru atau saat menjadi pusat perhatian.",
+            high: "Sangat berani secara sosial, suka petualangan, dan tidak ragu mengambil inisiatif dalam interaksi dengan orang lain.",
             retail_leadership: {
-                low: "Cenderung memimpin dari belakang layar, baik dalam tugas administratif. Mungkin merasa kurang nyaman saat harus presentasi di depan tim besar atau menghadapi pelanggan yang agresif.",
+                low: "Cenderung memimpin dari belakang layar, baik dalam tugas administratif. Mungkin merasa kurang nyaman saat harus presentasi atau menghadapi pelanggan agresif.",
+                medium: "Mampu berinteraksi dengan tim dan pelanggan secara efektif, namun mungkin bukan yang paling vokal. Perlu dorongan untuk mengambil inisiatif sosial yang lebih besar.",
                 high: "Percaya diri dalam berinteraksi dengan pelanggan dan tim, tidak ragu untuk mencoba program promosi baru, dan proaktif dalam memperluas jaringan."
             }
         },
-        'I': { 
-            low: "Praktis, realistis, logis, dan cenderung membuat keputusan berdasarkan fakta.", 
-            high: "Sensitif, estetis, mengandalkan intuisi, dan peka terhadap perasaan orang lain.",
+        'I': {
+            low: "Berpikir secara logis, praktis, dan realistis. Cenderung membuat keputusan berdasarkan fakta objektif daripada perasaan atau intuisi.",
+            medium: "Mampu menyeimbangkan antara logika dan perasaan. Dapat membuat keputusan berdasarkan data namun tetap mempertimbangkan dampak pada orang lain.",
+            high: "Sangat peka terhadap perasaan, baik diri sendiri maupun orang lain. Cenderung mengandalkan intuisi dan memiliki apresiasi terhadap estetika.",
             retail_leadership: {
                 low: "Fokus pada fakta dan angka, baik dalam manajemen stok dan efisiensi. Mungkin kurang peka terhadap nuansa dinamika tim atau kebutuhan emosional staf.",
+                medium: "Pendekatan yang seimbang. Mampu memberikan feedback yang logis tanpa menyakiti perasaan, serta mempertimbangkan estetika display dan kebutuhan tim.",
                 high: "Memiliki kepekaan terhadap visual merchandising (display produk) dan pengalaman pelanggan. Mampu memahami kebutuhan tim secara personal."
             }
         },
-        'L': { 
-            low: "Percaya, pemaaf, dan mudah menerima orang lain tanpa curiga.", 
-            high: "Waspada, cenderung curiga, dan skeptis terhadap niat orang lain.",
+        'L': {
+            low: "Sangat percaya pada orang lain, mudah menerima, dan tidak mudah curiga. Cenderung melihat sisi baik dari orang lain.",
+            medium: "Cukup percaya pada orang lain namun tetap memiliki tingkat kewaspadaan yang sehat. Tidak naif, tetapi juga tidak sinis.",
+            high: "Cenderung waspada, skeptis, dan analitis terhadap niat orang lain. Tidak mudah menerima sesuatu begitu saja tanpa bukti.",
             retail_leadership: {
                 low: "Membangun lingkungan kerja yang didasari kepercayaan, namun perlu waspada agar tidak terlalu mudah dimanfaatkan atau lalai dalam pengawasan.",
+                medium: "Mampu mendelegasikan tugas dengan kepercayaan, namun tetap melakukan follow-up yang wajar. Baik dalam menjaga keamanan tanpa menciptakan ketakutan.",
                 high: "Cermat dalam mengawasi potensi masalah (misal: kecurangan, penyusutan barang), namun perlu berhati-hati agar tidak menciptakan budaya saling curiga di antara tim."
             }
         },
-        'M': { 
-            low: "Praktis, berorientasi pada detail, dan fokus pada hal-hal yang konkret.", 
-            high: "Imajinatif, berorientasi pada ide besar, dan terkadang kurang memperhatikan detail praktis.",
+        'M': {
+            low: "Sangat praktis dan fokus pada hal-hal konkret di sekitar. Berorientasi pada detail dan kenyataan saat ini.",
+            medium: "Mampu menyeimbangkan antara ide dan implementasi praktis. Bisa memikirkan konsep baru namun tetap memikirkan cara menjalankannya.",
+            high: "Sangat imajinatif dan berorientasi pada ide-ide serta konsep abstrak. Terkadang bisa terlihat melamun atau kurang fokus pada detail praktis.",
             retail_leadership: {
                 low: "Sangat baik dalam memastikan operasional harian berjalan lancar dan sesuai standar. Fokus pada 'di sini dan saat ini'.",
-                high: "Mampu memikirkan ide-ide kreatif untuk promosi atau event di toko, namun mungkin memerlukan bantuan untuk menerjemahkan ide tersebut menjadi langkah-langkah konkret."
+                medium: "Dapat berkontribusi pada ide-ide baru sekaligus memastikan eksekusinya realistis. Menjadi jembatan antara tim kreatif dan operasional.",
+                high: "Mampu memikirkan ide-ide kreatif untuk promosi atau event, namun mungkin memerlukan bantuan untuk menerjemahkan ide tersebut menjadi langkah-langkah konkret."
             }
         },
-        'N': { 
-            low: "Terus terang, sederhana, dan tulus dalam berkomunikasi.", 
-            high: "Diplomatis, cerdik, sadar sosial, dan mampu 'membaca situasi'.",
+        'N': {
+            low: "Sangat terus terang, tulus, dan apa adanya. Cenderung terbuka mengenai pikiran dan perasaannya tanpa banyak pertimbangan sosial.",
+            medium: "Umumnya tulus, namun bisa bersikap diplomatis saat situasi membutuhkan. Mampu menyampaikan pesan sulit dengan cara yang cukup halus.",
+            high: "Sangat diplomatis, cerdik, dan sadar secara sosial. Mampu 'membaca situasi' dan menyesuaikan komunikasinya agar efektif.",
             retail_leadership: {
-                low: "Komunikasinya lugas dan apa adanya, sehingga mudah dipahami oleh tim. Namun, mungkin perlu melatih cara memberi masukan yang lebih halus dan diplomatis.",
+                low: "Komunikasinya lugas dan apa adanya, sehingga mudah dipahami oleh tim. Namun, mungkin perlu melatih cara memberi masukan yang lebih diplomatis.",
+                medium: "Mampu berkomunikasi secara efektif dengan berbagai level. Bisa terus terang dengan tim, namun juga bisa diplomatis dengan manajemen atau pelanggan.",
                 high: "Pintar dalam berkomunikasi dengan berbagai pihak, dari staf hingga manajemen atas. Mampu menangani situasi sosial yang rumit dengan baik."
             }
         },
-        'O': { 
-            low: "Percaya diri, tenang, aman, dan tidak mudah cemas.", 
-            high: "Khawatir, ragu-ragu, cemas, dan cenderung menyalahkan diri sendiri.",
+        'O': {
+            low: "Sangat percaya diri, tenang, dan tidak mudah cemas. Memiliki rasa aman internal yang kuat dan tidak mudah goyah.",
+            medium: "Memiliki kepercayaan diri yang cukup, namun terkadang bisa merasa khawatir atau ragu, terutama pada situasi baru atau berisiko tinggi.",
+            high: "Cenderung mudah khawatir, ragu-ragu, dan cemas. Sering mengantisipasi kemungkinan terburuk dan rentan terhadap perasaan bersalah.",
             retail_leadership: {
                 low: "Memancarkan ketenangan dan kepercayaan diri yang dapat menular ke tim, bahkan di bawah tekanan. Mampu mengambil risiko yang diperhitungkan.",
+                medium: "Cukup percaya diri untuk memimpin, namun kehati-hatiannya membuatnya mempertimbangkan risiko dengan baik sebelum bertindak. Tidak gegabah.",
                 high: "Cenderung sangat berhati-hati dan mengantisipasi masalah, namun kekhawatiran berlebih dapat menghambat pengambilan keputusan dan menimbulkan kecemasan pada tim."
             }
         },
-        'Q1': { 
-            low: "Konservatif, menghargai tradisi, dan cenderung menolak cara-cara baru.", 
-            high: "Terbuka pada perubahan, suka bereksperimen, dan berpikir kritis terhadap tradisi.",
+        'Q1': {
+            low: "Sangat menghargai tradisi dan metode yang sudah terbukti. Cenderung konservatif dan berhati-hati terhadap perubahan radikal.",
+            medium: "Terbuka pada ide baru yang terbukti memiliki manfaat praktis, namun tidak terburu-buru meninggalkan metode lama yang masih berfungsi.",
+            high: "Sangat terbuka pada ide-ide baru, suka bereksperimen, dan kritis terhadap status quo. Mendorong inovasi dan perubahan.",
             retail_leadership: {
                 low: "Konsisten dalam menjalankan sistem yang sudah ada dan terbukti berhasil. Mungkin resisten terhadap perubahan atau cara kerja baru.",
+                medium: "Dapat menjadi agen perubahan yang bijaksana, mengadopsi inovasi secara bertahap tanpa mengganggu stabilitas operasional.",
                 high: "Antusias dalam mencoba teknologi baru (misal: sistem kasir, aplikasi) atau metode promosi yang inovatif. Mendorong budaya perbaikan berkelanjutan."
             }
         },
-        'Q2': { 
-            low: "Bergantung pada kelompok, merupakan 'team player', dan membutuhkan persetujuan sosial.", 
-            high: "Mandiri, suka memutuskan sendiri, dan tidak terlalu bergantung pada dukungan kelompok.",
+        'Q2': {
+            low: "Sangat berorientasi pada kelompok dan merupakan 'team player' sejati. Merasa nyaman bekerja sama dan membutuhkan dukungan sosial.",
+            medium: "Mampu bekerja dengan baik dalam tim maupun secara mandiri. Menghargai masukan tim namun tetap bisa membuat keputusan sendiri jika diperlukan.",
+            high: "Sangat mandiri dan suka membuat keputusan sendiri. Memiliki sumber daya internal yang kuat dan tidak terlalu bergantung pada orang lain.",
             retail_leadership: {
                 low: "Sangat baik dalam membangun konsensus dan memastikan semua anggota tim merasa dilibatkan dalam pengambilan keputusan. Menjaga kekompakan tim.",
+                medium: "Fleksibel; bisa memimpin proyek tim kolaboratif atau menangani tugas manajerial secara mandiri. Keseimbangan yang ideal untuk banyak peran kepemimpinan.",
                 high: "Cepat dan tegas dalam mengambil keputusan, mampu bekerja mandiri tanpa perlu banyak supervisi. Perlu memastikan tim tetap merasa didengar."
             }
         },
-        'Q3': { 
-            low: "Fleksibel, kurang terorganisir, dan dapat mentolerir ketidakpastian.", 
-            high: "Terkontrol, disiplin, terorganisir, dan memiliki keinginan kuat untuk keteraturan.",
+        'Q3': {
+            low: "Sangat fleksibel dan dapat mentolerir ketidakpastian serta kurangnya struktur. Tidak terlalu terikat pada keteraturan.",
+            medium: "Cukup terorganisir untuk menjaga pekerjaan tetap berjalan lancar, namun tidak terlalu kaku dan bisa beradaptasi dengan perubahan.",
+            high: "Sangat disiplin, terorganisir, dan terkontrol. Memiliki keinginan kuat untuk menjaga keteraturan dan mencapai standar yang tinggi.",
             retail_leadership: {
                 low: "Mampu beradaptasi dengan perubahan jadwal atau prioritas mendadak, namun bisa jadi kurang konsisten dalam pelaporan atau administrasi.",
+                medium: "Menjaga standar dan keteraturan yang baik, namun tidak panik jika ada gangguan tak terduga. Mampu menjaga tim tetap fokus tanpa menjadi terlalu menuntut.",
                 high: "Sangat terstruktur dalam membuat jadwal kerja, mengelola tugas, dan memastikan semua laporan selesai tepat waktu. Menjaga keteraturan di area kerja."
             }
         },
-        'Q4': { 
-            low: "Rileks, sabar, tenang, dan tidak mudah terprovokasi.", 
-            high: "Tegang, berenergi tinggi, tidak sabaran, dan mudah frustrasi.",
+        'Q4': {
+            low: "Sangat rileks, sabar, dan tenang. Memiliki tingkat energi yang stabil dan tidak mudah terprovokasi oleh tekanan.",
+            medium: "Secara umum tenang, namun bisa merasakan tekanan dan dorongan untuk bertindak cepat saat menghadapi tenggat waktu atau situasi mendesak.",
+            high: "Memiliki tingkat energi yang tinggi, cenderung tegang, dan tidak sabaran. Selalu ingin bergerak dan mudah merasa frustrasi jika ada hambatan.",
             retail_leadership: {
                 low: "Menciptakan lingkungan kerja yang tenang dan tidak terburu-buru. Efektif dalam tugas yang membutuhkan ketelitian dan kesabaran.",
+                medium: "Memiliki energi yang cukup untuk lingkungan kerja yang dinamis, namun tetap bisa rileks saat situasi terkendali. Tidak mudah panik namun tetap memiliki sense of urgency.",
                 high: "Memiliki dorongan kuat untuk menyelesaikan pekerjaan dengan cepat, menjaga ritme kerja yang tinggi. Perlu mengelola stres agar tidak mudah frustrasi saat ada hambatan."
             }
         }
@@ -733,8 +765,8 @@
                     leadership = interpretations[factor].retail_leadership.high;
                 } else {
                     tendency = "Sedang";
-                    description = `Kandidat menunjukkan keseimbangan antara dua kutub kepribadian pada faktor ini.`;
-                    leadership = `Cenderung fleksibel, dapat menunjukkan karakteristik dari kedua sisi tergantung pada situasi.`;
+                    description = interpretations[factor].medium;
+                    leadership = interpretations[factor].retail_leadership.medium;
                 }
 
                 doc.setFontSize(12);
